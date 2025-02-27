@@ -1,0 +1,22 @@
+' ******************************************************************************
+' swxJRNL.swj - journal recorded on 02/07/14 by Ron
+' ******************************************************************************
+
+Dim swApp As Object
+Dim Part As Object
+Dim boolstatus As Boolean
+Dim longstatus As Long
+Dim Annotation As Object
+Dim Gtol As Object
+Dim DatumTag As Object
+Dim FeatureData As Object
+Dim Feature As Object
+Dim Component As Object
+Sub main()
+Set swApp = CreateObject ("SldWorks.Application")
+Set Part = swApp.OpenDoc4 ("C:\Solid Works Data 2012\DPRG\Old DPRG SW Robot\FootNoJoint.SLDPRT", 1, 0, "", longstatus)
+Set Part = swApp.ActivateDoc ("FootNoJoint.SLDPRT")
+swApp.ActiveDoc.ActiveView.FrameWidth = 1506
+swApp.ActiveDoc.ActiveView.FrameHeight = 830
+swApp.ExitApp
+End Sub

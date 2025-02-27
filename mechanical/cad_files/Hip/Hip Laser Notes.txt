@@ -1,0 +1,28 @@
+
+RG Laser (40 Watt CO2)
+
+
+Styrene .125" Thick ($2.50/sqft e-street)
+p160  f100 (10.0 ipm)
+
+
+Acrylic 1/4" Thick
+p160  f60
+
+
+Styrofoam (monitor - fire hazard)
+Use Higher Pressure Assist Air (Med Pump)
+
+p150 f150  - some edge roughness (another setting did better -- maybe p160 f100?)
+used this setting to make 7 knee plates
+
+
+
+
+
+Foam Stack + 1/8 Plex 2.020  
+
+
+
+
+
