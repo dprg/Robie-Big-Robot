@@ -1,5 +1,12 @@
 import cv2
 
+import serial
+import msvcrt
+import time
+
+robie_serial = serial.Serial("com39")
+
+
 # create a new cam object
 cap = cv2.VideoCapture(1)
 # initialize the face recognizer (default face haar cascade)
@@ -37,31 +44,49 @@ while True:
     x = face['x']
     y = face['y']
 
-    react = []
+    react = ""
     if a > 1000 :
         if x > w_mid * 1.1 :
-            react.append('R')
+            react+="R"
         elif x < w_mid * 0.9 :
-            react.append('L')
+            react+="L"
         else :
-            react.append('C')
+            react+="C"
 
         if y > h_mid * 1.1 :
-            react.append('D')
+            react+="D"
         elif y < h_mid * 0.9 :
-            react.append('U')
+            react+="U"
         else :
-            react.append('C')
+            react+="C"
 
     # process face status 
     # L = move head right, D = move head down
     # C = dont move head it is centered
     # - = head not detected, maybe go to center after time out
-    print(react)
+    if react!="" :
+        if react!="CC" :
+            print(react)
+            robie_serial.write(react.encode('ascii')) 
+            time.sleep(0.5)
+        else : 
+            print("CC",end="\r")
+    #else :
+    #    print(".",end="")
+
+    if msvcrt.kbhit():
+        c = msvcrt.getch()
+        print(c)
+        robie_serial.write(c)
 
     cv2.imshow("image", image)
+
     if cv2.waitKey(1) == ord("q"):
         break
+
+    #s = robie_serial.readline()
+    #print(s)
+
 
 cap.release()
 cv2.destroyAllWindows()
