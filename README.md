@@ -14,6 +14,8 @@ TODO: Delete one of the directories, and get it compiling on modern Arduino.
 Mike Williamson 3/21/2025
 Added opencv code to detect faces which will control the head to point to it and maybe even wave when centered on face
 
+Mark R 3/26/2025
+Added support for Linux, as well as some error catching stuff
 
 It is based on the instructions from this page:
 https://thepythoncode.com/article/detect-faces-opencv-python
