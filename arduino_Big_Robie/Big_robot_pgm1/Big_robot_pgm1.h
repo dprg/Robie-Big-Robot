@@ -1,9 +1,9 @@
 /********************************
-*
-*  main header file
-*
-*
-********************************/
+ *
+ *  main header file
+ *
+ *
+ ********************************/
 // directions
 #define UP 1
 #define DOWN 2
@@ -13,8 +13,8 @@
 #define STOP 0
 #define TILT_UP_SPD 125
 #define TILT_DWN_SPD 125
-#define NORM_SPD 125     // 0 to 255
-#define DUMMY 1          // used for stepper motors
+#define NORM_SPD 125 // 0 to 255
+#define DUMMY 1		 // used for stepper motors
 // motor directions
 #define SHUTDOWN 0
 #define CW 1
@@ -34,12 +34,12 @@
 #define BIPOLAR 3
 
 // shoulder movement related
-#define DEAD_BAND 50  //25
+#define DEAD_BAND 50 // 25
 
-
-typedef struct motor {
+typedef struct motor
+{
 	int type;
-	int dir;        
+	int dir;
 	int speed;
 	int enPin;
 	int seqNum;
@@ -49,12 +49,11 @@ typedef struct motor {
 	int in4Pin;
 	int potPin;
 	int potVal;
-    int delayBetweenSteps;
+	int delayBetweenSteps;
 	int limitSwType;
 	int limitCWpin;
 	int limitCCWpin;
 	int limitCWstate;
 	int limitCCWstate;
-    int dirChgFlg;
+	int dirChgFlg;
 } motor;
-
