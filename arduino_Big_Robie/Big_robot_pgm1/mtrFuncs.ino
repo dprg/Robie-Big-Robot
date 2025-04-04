@@ -5,7 +5,7 @@
  *************************************************/
 void step(motor *mtr)
 {
-	for (int j = 0; j <= 20; j++)
+	for (int j = 0; j <= 5; j++)
 	{	// 4.3 * 200 = 860 or 1 rev (~2.4 per deg)
 		// check limit switches
 		chkLimitSwState(ptrPanMtr);

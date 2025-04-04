@@ -28,7 +28,7 @@ char inputString[bufLen]; // a string (buffer) to hold incoming data
 int baudRate = 9600;      // baud rate
 
 // servo objects
-Servo waveServo; // create servo object to control a servo
+Servo waveServo; // create servo object to control right wrist servo
                  // a maximum of eight servo objects can be created
 
 // define motors

@@ -1,2 +1,3 @@
 opencv/opencv
 .vscode
+__pycache__*
