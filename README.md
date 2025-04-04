@@ -11,11 +11,15 @@ are identical.
 
 TODO: Delete one of the directories, and get it compiling on modern Arduino.
 
-Mike Williamson 3/21/2025
-Added opencv code to detect faces which will control the head to point to it and maybe even wave when centered on face
+Mike Williamson 3/21/2025<br>
+Added opencv code to detect faces which will control the head to point to it and maybe even wave when centered on face<br>
+
+start code: cd to opencv in terminal run py -f facedet_test.py<br>
 
 Mark R 3/26/2025
 Added support for Linux, as well as some error catching stuff
 
+<br>
 It is based on the instructions from this page:
-https://thepythoncode.com/article/detect-faces-opencv-python
+https://thepythoncode.com/article/detect-faces-opencv-python 
+<br>
