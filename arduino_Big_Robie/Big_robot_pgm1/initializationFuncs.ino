@@ -85,4 +85,5 @@ void initialize(void)
 
 	// Servo setup
 	waveServo.attach(37);
+	waveServo_right.attach(35);
 }

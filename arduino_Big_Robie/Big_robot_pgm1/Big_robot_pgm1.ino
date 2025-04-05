@@ -19,8 +19,8 @@
 // Pin definitions
 const int LED = 13;
 const int BUTTON = 12;
-const int POT_LIFT = 2; // Pot 1
-const int POT_ROT = 3;  // Pot 2
+const int POT_LIFT = A2; // Pot 1
+const int POT_ROT = A3;  // Pot 2
 
 // Serial setup stuff
 const int bufLen = 36;    // length of inputString buffer
@@ -28,7 +28,8 @@ char inputString[bufLen]; // a string (buffer) to hold incoming data
 int baudRate = 9600;      // baud rate
 
 // servo objects
-Servo waveServo; // create servo object to control right wrist servo
+Servo waveServo; // create servo object to control left wrist servo
+Servo waveServo_right; // create servo object to control left wrist servo
                  // a maximum of eight servo objects can be created
 
 // define motors

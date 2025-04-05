@@ -130,6 +130,10 @@ void parse(void)
 			//     inputString[k] = '\0';
 			// j = j + (temp);
 			//   break;
+		case 'E':
+			wave_right();
+			Serial.println("E");
+			break;
 		default:
 			Serial.print(cmd);
 			Serial.println(" - bad cmd");
