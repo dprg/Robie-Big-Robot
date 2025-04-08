@@ -1,14 +1,6 @@
 # Robie-Big-Robot
 Files related to Robie, the 7-foot tall DPRG mascot.
 
-## Media
-
-### Robie Resuscitation 2025
-![Robie Resuscitated](images/RobieResuscitated.png)
-[Video: Resuscitated Robie moving](https://youtu.be/EISYc3Z7FQA)
-### Early Robie
-[Video: Early Robie at a DPRG show](https://youtu.be/n2Y_eyLx5xM)
-
 ## Repo Contents
 
 CAD models are in mechanical/cad_files. At the time of repo creation they contain 
@@ -18,6 +10,22 @@ Arduino files are as delivered by Doug Paradis to Paul Bouchier on March 2 2025.
 are two source code directories: Big_robot_pgm1 and Big_robot_pgm2.
 Except for the name of two files having been changed, all files in the two directories
 are identical. 
+
+## Media
+
+Robie Resuscitation 2025
+![Robie Resuscitated](images/RobieResuscitated.png)
+<br>
+Robie at iMake Ft Worth (2017)
+![Robie at iMake Ft Worth (2017)](images/RobieAtFtWorthIMake.png)
+<br>
+Robie with Doug
+![Robie with Doug](images/Doug_w_big_robie_in_gargage2017.JPG)
+<br>
+### Videos
+[Video: Resuscitated Robie moving](https://youtu.be/EISYc3Z7FQA)
+<br>
+[Video: Early Robie at a DPRG show](https://youtu.be/n2Y_eyLx5xM)
 
 ## Changelog
 
