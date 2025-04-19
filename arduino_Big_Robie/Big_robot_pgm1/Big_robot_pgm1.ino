@@ -132,9 +132,9 @@ void loop()
     }
 
     // --- Interrupt Logic ---
-    // If the command is NOT ignored AND moveToPose is active, interrupt moveToPose.
-    // Exception: Don't interrupt for another moveToPose command ('5'-'8'), as those are ignored above if busy.
-    if (!ignoreCmd && isMovingToPose && (cmdChar < '5' || cmdChar > '8')) {
+    // If the command is NOT ignored AND moveToPose is active,
+    // AND the command is one that affects the shoulder motors ('1' through '4'), interrupt moveToPose.
+    if (!ignoreCmd && isMovingToPose && (cmdChar >= '1' && cmdChar <= '4')) {
        isMovingToPose = false;
        // Stop the shoulder motors immediately
        if(poseLiftMotorPtr && poseLiftMotorPtr->state == MOTOR_STEPPING_DC) {
