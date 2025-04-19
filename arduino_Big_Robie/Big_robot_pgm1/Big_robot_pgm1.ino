@@ -61,10 +61,6 @@ void setup()
   // Initialize Wave states
   waveLeftState = WAVE_IDLE;
   waveRightState = WAVE_IDLE;
-
-  // Set initial motor directions/speeds if needed (most are set by commands now)
-  // if (ptrTiltMtr) ptrTiltMtr->speed = NORM_SPD;
-  // if (ptrPanMtr) ptrPanMtr->dir = CW;
 }
 
 void loop()
