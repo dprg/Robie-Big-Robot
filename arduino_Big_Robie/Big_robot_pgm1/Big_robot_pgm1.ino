@@ -47,10 +47,21 @@ int dcMtrTimeOn = 40;
 
 void setup()
 {
-  initialize();
+  initialize(); // Assumes initialize() sets up pins, serial, servos etc.
 
-  // set starting direction
-  ptrTiltMtr->dir = CW;
+  // Initialize motor states (assuming previous refactor is applied)
+  // ptrTiltMtr->state = MOTOR_IDLE;
+  // ptrPanMtr->state = MOTOR_IDLE;
+  // ptrRightShoulderLiftMtr->state = MOTOR_IDLE;
+  // ptrRightShoulderRotMtr->state = MOTOR_IDLE;
+  // isMovingToPose = false;
+
+  // Initialize Wave states
+  waveLeftState = WAVE_IDLE;
+  waveRightState = WAVE_IDLE;
+
+  // set starting direction (if needed)
+  // ptrTiltMtr->dir = CW;
   ptrTiltMtr->speed = NORM_SPD;
   ptrPanMtr->dir = CW;
 }
@@ -66,8 +77,42 @@ void loop()
   //   digitalWrite(LED, HIGH);
   //}
 
+  // --- Update State Machines ---
+  // updateMotors();     // From previous refactor
+  // updateMoveToPose(); // From previous refactor
+  updateWaveLeft();   // Update left wave state machine
+  updateWaveRight();  // Update right wave state machine
+
+  // --- Check for Input ---
   int cmdLen = 0;
-  cmdLen = readCmdLine();
-  if (cmdLen > 0)
-    parse();
+  cmdLen = readCmdLine(); // Check if a new command has arrived
+  if (cmdLen > 0) {
+    // A new command arrived.
+    // Check if it's a wave command and if that wave is already running.
+    bool ignoreCmd = false;
+    if (inputString[0] == 'W' || inputString[0] == 'w') {
+        if (waveLeftState != WAVE_IDLE) {
+            Serial.println("Ignoring 'W' command, left wave already running.");
+            ignoreCmd = true;
+        }
+    } else if (inputString[0] == 'E' || inputString[0] == 'e') {
+        if (waveRightState != WAVE_IDLE) {
+             Serial.println("Ignoring 'E' command, right wave already running.");
+            ignoreCmd = true;
+        }
+    }
+    // Add interrupt logic for other async actions if needed (e.g., stop moveToPose)
+    // if (!ignoreCmd && isMovingToPose) {
+    //    isMovingToPose = false;
+    //    Serial.println("MoveToPose interrupted by new command.");
+    // }
+
+
+    if (!ignoreCmd) {
+        parse(); // Parse and initiate the new command if not ignored
+    } else {
+        // Clear the buffer if the command was ignored
+        for (int i = 0; i < bufLen; i++) { inputString[i] = '\0'; }
+    }
+  }
 }

@@ -33,8 +33,28 @@
 #define UNIPOLAR 2
 #define BIPOLAR 3
 
+// Wave States
+typedef enum {
+  WAVE_IDLE,
+  WAVE_UP,
+  WAVE_DOWN
+} WaveState;
+
 // shoulder movement related
 #define DEAD_BAND 50 // 25
+
+// Global state for Left Wave (Standard Servo)
+extern WaveState waveLeftState;
+extern unsigned long waveLeftNextStepMillis;
+extern int waveLeftCurrentPos;
+extern int waveLeftRepetitions;
+
+// Global state for Right Wave (Continuous Servo)
+extern WaveState waveRightState;
+extern unsigned long waveRightNextStepMillis;
+extern int waveRightCurrentPos;
+extern int waveRightRepetitions;
+
 
 typedef struct motor
 {
@@ -57,3 +77,9 @@ typedef struct motor
 	int limitCCWstate;
 	int dirChgFlg;
 } motor;
+
+// Function Prototypes for non-blocking wave operations
+void startWaveLeft();
+void updateWaveLeft();
+void startWaveRight();
+void updateWaveRight();

@@ -116,12 +116,14 @@ void parse(void)
 			// Serial.print(',');
 			// temp = analogRead(POT_ROT);
 			// erial.print(temp);
+			// erial.print(temp);
 			// Serial.print('\n');
-			Serial.println("8");
+			Serial.println("8"); // Command confirmation
 			break;
-		case 'W':
-			wave();
-			Serial.println("W");
+		case 'W': // Start Left Wave (Non-Blocking)
+			startWaveLeft();
+			// Serial output now handled within start/update functions
+			// Serial.println("W");
 			break;
 			// case 'X':   // complex cmds
 			// Serial.println("X");
@@ -130,9 +132,10 @@ void parse(void)
 			//     inputString[k] = '\0';
 			// j = j + (temp);
 			//   break;
-		case 'E':
-			wave_right();
-			Serial.println("E");
+		case 'E': // Start Right Wave (Non-Blocking)
+			startWaveRight();
+      // Serial output now handled within start/update functions
+			// Serial.println("E");
 			break;
 		default:
 			Serial.print(cmd);
