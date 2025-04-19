@@ -33,6 +33,13 @@
 #define UNIPOLAR 2
 #define BIPOLAR 3
 
+// Motor States
+typedef enum {
+  MOTOR_IDLE,
+  MOTOR_STEPPING_MICROSTEP, // For stepper during its sequence
+  MOTOR_STEPPING_DC         // For DC motor during its timed pulse
+} MotorState;
+
 // Wave States
 typedef enum {
   WAVE_IDLE,
@@ -55,10 +62,19 @@ extern unsigned long waveRightNextStepMillis;
 extern int waveRightCurrentPos;
 extern int waveRightRepetitions;
 
+// Pose Movement State
+extern bool isMovingToPose;
+extern int poseTargetLift;
+extern int poseTargetRot;
+extern int poseDeadband;
+extern motor *poseLiftMotorPtr;
+extern motor *poseRotMotorPtr;
+
 
 typedef struct motor
 {
 	int type;
+  MotorState state; // Current state of the motor
 	int dir;
 	int speed;
 	int enPin;
@@ -76,9 +92,21 @@ typedef struct motor
 	int limitCWstate;
 	int limitCCWstate;
 	int dirChgFlg;
+
+  // State variables for non-blocking control
+  unsigned long stepTargetMillis; // End time for DC step or time for next micro-step
+  int microStepsRemaining; // For stepper motor control
 } motor;
 
-// Function Prototypes for non-blocking wave operations
+// Function Prototypes for non-blocking operations
+void updateDcMotors(void);
+void updateStepperMotor(void); // Specifically for the pan motor
+void updateMoveToPose(void);
+void startDcMotorStep(int direction, int speed, int timeOn, motor *mtr);
+void startStepperStep(int direction, motor *mtr); // Stepper takes fixed steps/delay
+void startMoveToPose(int targetLift, int targetRot, int deadband, motor *liftMtr, motor *rotMtr);
+
+// Function Prototypes for non-blocking wave operations (already exist)
 void startWaveLeft();
 void updateWaveLeft();
 void startWaveRight();

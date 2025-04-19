@@ -23,94 +23,114 @@ void parse(void)
 		int temp = 0;
 		switch (cmd)
 		{
-		case 'L': // turn pan motor left one step
-			setMotor(CW, DUMMY, ptrPanMtr);
-			Serial.println("L");
+		case 'L': // turn pan motor left one step (Non-Blocking)
+      // Check handled in loop() before calling parse()
+			startStepperStep(CW, ptrPanMtr);
+			// Serial.println("L"); // Output now in start/update funcs
 			break;
-		case 'R': // turn pan motor right one step
-			setMotor(CCW, DUMMY, ptrPanMtr);
-			Serial.println("R");
+		case 'R': // turn pan motor right one step (Non-Blocking)
+      // Check handled in loop() before calling parse()
+			startStepperStep(CCW, ptrPanMtr);
+			// Serial.println("R"); // Output now in start/update funcs
 			break;
-		case 'U': // turn tilt motor upward one step
-			dcMtrTakeStep(CCW, TILT_UP_SPD, dcMtrTimeOn, ptrTiltMtr);
-			Serial.println("U");
+		case 'U': // turn tilt motor upward one step (Non-Blocking)
+      // Check handled in loop() before calling parse()
+			startDcMotorStep(CCW, TILT_UP_SPD, dcMtrTimeOn, ptrTiltMtr);
+			// Serial.println("U"); // Output now in start/update funcs
 			break;
-		case 'D': // turn tilt motor downward one step
-			dcMtrTakeStep(CW, TILT_DWN_SPD, dcMtrTimeOn, ptrTiltMtr);
-			Serial.println("D");
+		case 'D': // turn tilt motor downward one step (Non-Blocking)
+      // Check handled in loop() before calling parse()
+			startDcMotorStep(CW, TILT_DWN_SPD, dcMtrTimeOn, ptrTiltMtr);
+			// Serial.println("D"); // Output now in start/update funcs
 			break;
-		case '1':
-			dcMtrTakeStep(CCW, NORM_SPD, dcMtrTimeOn, ptrRightShoulderLiftMtr);
-			temp = analogRead(POT_LIFT);
-			Serial.print(temp);
-			Serial.print(',');
-			temp = analogRead(POT_ROT);
-			Serial.print(temp);
-			Serial.print('\n');
-			Serial.println("1");
-			break;
-		case '2': // toral down
-			dcMtrTakeStep(CCW, NORM_SPD, dcMtrTimeOn, ptrRightShoulderRotMtr);
-			temp = analogRead(POT_LIFT);
-			Serial.print(temp);
-			Serial.print(',');
-			temp = analogRead(POT_ROT);
-			Serial.print(temp);
-			Serial.print('\n');
-			Serial.println("2");
-			break;
-		case '3':
-			dcMtrTakeStep(CW, NORM_SPD, dcMtrTimeOn, ptrRightShoulderLiftMtr);
-			temp = analogRead(POT_LIFT);
-			Serial.print(temp);
-			Serial.print(',');
-			temp = analogRead(POT_ROT);
-			Serial.print(temp);
-			Serial.print('\n');
-			Serial.println("3");
-			break;
-		case '4':
-			dcMtrTakeStep(CW, NORM_SPD, dcMtrTimeOn, ptrRightShoulderRotMtr);
-			temp = analogRead(POT_LIFT);
-			Serial.print(temp);
-			Serial.print(',');
-			temp = analogRead(POT_ROT);
-			Serial.print(temp);
-			Serial.print('\n');
-			Serial.println("4");
-			break;
-		case '5':
-			moveToPose(104, 872, DEAD_BAND, ptrRightShoulderLiftMtr, ptrRightShoulderRotMtr); // 500,500
-			// temp = analogRead(POT_LIFT);
-			// Serial.print(temp);
-			// Serial.print(',');
-			// temp = analogRead(POT_ROT);
-			// Serial.print(temp);8
-			// Serial.print('\n');
-			Serial.println("5");
-			break;
-		case '6':
-			moveToPose(103, 556, DEAD_BAND, ptrRightShoulderLiftMtr, ptrRightShoulderRotMtr); // 200,560
+		case '1': // Shoulder Lift Up (CCW) - Non-blocking step
+      // Check handled in loop() before calling parse()
+			startDcMotorStep(CCW, NORM_SPD, dcMtrTimeOn, ptrRightShoulderLiftMtr);
+			// Pot readings are meaningless here as step hasn't finished
 			// temp = analogRead(POT_LIFT);
 			// Serial.print(temp);
 			// Serial.print(',');
 			// temp = analogRead(POT_ROT);
 			// Serial.print(temp);
 			// Serial.print('\n');
-			Serial.println("6");
+			// Serial.println("1"); // Output now in start/update funcs
 			break;
-		case '7':
-			moveToPose(225, 552, DEAD_BAND, ptrRightShoulderLiftMtr, ptrRightShoulderRotMtr); // 770,900
+		case '2': // Shoulder Rotate More (CCW?) - Non-blocking step
+      // Check handled in loop() before calling parse()
+			startDcMotorStep(CCW, NORM_SPD, dcMtrTimeOn, ptrRightShoulderRotMtr);
+			// Pot readings are meaningless here
 			// temp = analogRead(POT_LIFT);
 			// Serial.print(temp);
 			// Serial.print(',');
 			// temp = analogRead(POT_ROT);
 			// Serial.print(temp);
 			// Serial.print('\n');
-			Serial.println("7");
+			// Serial.println("2"); // Output now in start/update funcs
 			break;
-		case '8':
-			moveToPose(373, 543, DEAD_BAND, ptrRightShoulderLiftMtr, ptrRightShoulderRotMtr); // 770, 250
+		case '3': // Shoulder Lift Down (CW) - Non-blocking step
+      // Check handled in loop() before calling parse()
+			startDcMotorStep(CW, NORM_SPD, dcMtrTimeOn, ptrRightShoulderLiftMtr);
+      // Pot readings are meaningless here
+			// temp = analogRead(POT_LIFT);
+			// Serial.print(temp);
+			// Serial.print(',');
+			// temp = analogRead(POT_ROT);
+			// Serial.print(temp);
+			// Serial.print('\n');
+			// Serial.println("3"); // Output now in start/update funcs
+			break;
+		case '4': // Shoulder Rotate Less (CW?) - Non-blocking step
+      // Check handled in loop() before calling parse()
+			startDcMotorStep(CW, NORM_SPD, dcMtrTimeOn, ptrRightShoulderRotMtr);
+      // Pot readings are meaningless here
+			// temp = analogRead(POT_LIFT);
+			// Serial.print(temp);
+			// Serial.print(',');
+			// temp = analogRead(POT_ROT);
+			// Serial.print(temp);
+			// Serial.print('\n');
+			// Serial.println("4"); // Output now in start/update funcs
+			break;
+		case '5': // Start moving to pose 1 (Non-Blocking)
+      // Check handled in loop() before calling parse()
+			startMoveToPose(104, 872, DEAD_BAND, ptrRightShoulderLiftMtr, ptrRightShoulderRotMtr);
+			// Status printing is now handled within start/updateMoveToPose()
+			// temp = analogRead(POT_LIFT);
+			// Serial.print(temp);
+			// Serial.print(',');
+			// temp = analogRead(POT_ROT);
+			// Serial.print(temp);
+			// Serial.print('\n');
+			// Serial.println("5"); // Output now in start/update funcs
+			break;
+		case '6': // Start moving to pose 2 (Non-Blocking)
+      // Check handled in loop() before calling parse()
+			startMoveToPose(103, 556, DEAD_BAND, ptrRightShoulderLiftMtr, ptrRightShoulderRotMtr);
+			// Status printing is now handled within start/updateMoveToPose()
+			// temp = analogRead(POT_LIFT);
+			// Serial.print(temp);
+			// Serial.print(',');
+			// temp = analogRead(POT_ROT);
+			// Serial.print(temp);
+			// Serial.print('\n');
+			// Serial.println("6"); // Output now in start/update funcs
+			break;
+		case '7': // Start moving to pose 3 (Non-Blocking)
+      // Check handled in loop() before calling parse()
+			startMoveToPose(225, 552, DEAD_BAND, ptrRightShoulderLiftMtr, ptrRightShoulderRotMtr);
+			// Status printing is now handled within start/updateMoveToPose()
+			// temp = analogRead(POT_LIFT);
+			// Serial.print(temp);
+			// Serial.print(',');
+			// temp = analogRead(POT_ROT);
+			// Serial.print(temp);
+			// Serial.print('\n');
+			// Serial.println("7"); // Output now in start/update funcs
+			break;
+		case '8': // Start moving to pose 4 (Non-Blocking)
+      // Check handled in loop() before calling parse()
+			startMoveToPose(373, 543, DEAD_BAND, ptrRightShoulderLiftMtr, ptrRightShoulderRotMtr);
+			// Status printing is now handled within start/updateMoveToPose()
 			// temp = analogRead(POT_LIFT);
 			// Serial.print(temp);
 			// Serial.print(',');

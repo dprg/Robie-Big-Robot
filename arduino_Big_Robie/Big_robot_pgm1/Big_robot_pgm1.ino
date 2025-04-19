@@ -47,23 +47,24 @@ int dcMtrTimeOn = 40;
 
 void setup()
 {
-  initialize(); // Assumes initialize() sets up pins, serial, servos etc.
+  initialize(); // Assumes initialize() sets up pins, serial, servos, motor structs etc.
 
-  // Initialize motor states (assuming previous refactor is applied)
-  // ptrTiltMtr->state = MOTOR_IDLE;
-  // ptrPanMtr->state = MOTOR_IDLE;
-  // ptrRightShoulderLiftMtr->state = MOTOR_IDLE;
-  // ptrRightShoulderRotMtr->state = MOTOR_IDLE;
-  // isMovingToPose = false;
+  // Initialize ALL motor states
+  if (ptrTiltMtr) ptrTiltMtr->state = MOTOR_IDLE;
+  if (ptrPanMtr) ptrPanMtr->state = MOTOR_IDLE;
+  if (ptrRightShoulderLiftMtr) ptrRightShoulderLiftMtr->state = MOTOR_IDLE;
+  if (ptrRightShoulderRotMtr) ptrRightShoulderRotMtr->state = MOTOR_IDLE;
+
+  // Initialize Pose state
+  isMovingToPose = false;
 
   // Initialize Wave states
   waveLeftState = WAVE_IDLE;
   waveRightState = WAVE_IDLE;
 
-  // set starting direction (if needed)
-  // ptrTiltMtr->dir = CW;
-  ptrTiltMtr->speed = NORM_SPD;
-  ptrPanMtr->dir = CW;
+  // Set initial motor directions/speeds if needed (most are set by commands now)
+  // if (ptrTiltMtr) ptrTiltMtr->speed = NORM_SPD;
+  // if (ptrPanMtr) ptrPanMtr->dir = CW;
 }
 
 void loop()
@@ -77,42 +78,86 @@ void loop()
   //   digitalWrite(LED, HIGH);
   //}
 
-  // --- Update State Machines ---
-  // updateMotors();     // From previous refactor
-  // updateMoveToPose(); // From previous refactor
-  updateWaveLeft();   // Update left wave state machine
-  updateWaveRight();  // Update right wave state machine
+  // --- Update ALL State Machines ---
+  updateDcMotors();       // Handles Tilt, Shoulder motors after startDcMotorStep
+  updateStepperMotor();   // Handles Pan motor after startStepperStep
+  updateMoveToPose();     // Handles coordinated shoulder movement
+  updateWaveLeft();       // Handles left servo wave
+  updateWaveRight();      // Handles right servo wave
 
   // --- Check for Input ---
   int cmdLen = 0;
   cmdLen = readCmdLine(); // Check if a new command has arrived
   if (cmdLen > 0) {
-    // A new command arrived.
-    // Check if it's a wave command and if that wave is already running.
+    // A new command arrived. Check if it should be ignored or if it interrupts moveToPose.
     bool ignoreCmd = false;
-    if (inputString[0] == 'W' || inputString[0] == 'w') {
-        if (waveLeftState != WAVE_IDLE) {
-            Serial.println("Ignoring 'W' command, left wave already running.");
-            ignoreCmd = true;
-        }
-    } else if (inputString[0] == 'E' || inputString[0] == 'e') {
-        if (waveRightState != WAVE_IDLE) {
-             Serial.println("Ignoring 'E' command, right wave already running.");
-            ignoreCmd = true;
-        }
+    char cmdChar = toupper(inputString[0]); // Use uppercase for checks
+
+    // --- Check for Busy States / Ignore Logic ---
+    switch(cmdChar) {
+        case 'W':
+            if (waveLeftState != WAVE_IDLE) { ignoreCmd = true; Serial.println("Ignoring 'W': Left wave busy."); }
+            break;
+        case 'E':
+            if (waveRightState != WAVE_IDLE) { ignoreCmd = true; Serial.println("Ignoring 'E': Right wave busy."); }
+            break;
+        case 'L':
+        case 'R':
+            if (ptrPanMtr && ptrPanMtr->state != MOTOR_IDLE) { ignoreCmd = true; Serial.println("Ignoring 'L'/'R': Pan motor busy."); }
+            break;
+        case 'U':
+        case 'D':
+            if (ptrTiltMtr && ptrTiltMtr->state != MOTOR_IDLE) { ignoreCmd = true; Serial.println("Ignoring 'U'/'D': Tilt motor busy."); }
+            break;
+        case '1': // Lift Up
+        case '3': // Lift Down
+            if (ptrRightShoulderLiftMtr && ptrRightShoulderLiftMtr->state != MOTOR_IDLE) { ignoreCmd = true; Serial.println("Ignoring '1'/'3': Shoulder Lift motor busy."); }
+            break;
+        case '2': // Rot More
+        case '4': // Rot Less
+            if (ptrRightShoulderRotMtr && ptrRightShoulderRotMtr->state != MOTOR_IDLE) { ignoreCmd = true; Serial.println("Ignoring '2'/'4': Shoulder Rot motor busy."); }
+            break;
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+            if (isMovingToPose) { ignoreCmd = true; Serial.println("Ignoring '5'-'8': MoveToPose busy."); }
+            // Also check if individual shoulder motors are busy from single steps
+            else if (ptrRightShoulderLiftMtr && ptrRightShoulderLiftMtr->state != MOTOR_IDLE) { ignoreCmd = true; Serial.println("Ignoring '5'-'8': Shoulder Lift motor busy."); }
+            else if (ptrRightShoulderRotMtr && ptrRightShoulderRotMtr->state != MOTOR_IDLE) { ignoreCmd = true; Serial.println("Ignoring '5'-'8': Shoulder Rot motor busy."); }
+            break;
+        default:
+            // Unknown commands are handled in parse()
+            break;
     }
-    // Add interrupt logic for other async actions if needed (e.g., stop moveToPose)
-    // if (!ignoreCmd && isMovingToPose) {
-    //    isMovingToPose = false;
-    //    Serial.println("MoveToPose interrupted by new command.");
-    // }
 
+    // --- Interrupt Logic ---
+    // If the command is NOT ignored AND moveToPose is active, interrupt moveToPose.
+    // Exception: Don't interrupt for another moveToPose command ('5'-'8'), as those are ignored above if busy.
+    if (!ignoreCmd && isMovingToPose && (cmdChar < '5' || cmdChar > '8')) {
+       isMovingToPose = false;
+       // Stop the shoulder motors immediately
+       if(poseLiftMotorPtr && poseLiftMotorPtr->state == MOTOR_STEPPING_DC) {
+           analogWrite(poseLiftMotorPtr->enPin, STOP);
+           digitalWrite(poseLiftMotorPtr->in1Pin, LOW); digitalWrite(poseLiftMotorPtr->in2Pin, LOW);
+           poseLiftMotorPtr->state = MOTOR_IDLE;
+       }
+       if(poseRotMotorPtr && poseRotMotorPtr->state == MOTOR_STEPPING_DC) {
+           analogWrite(poseRotMotorPtr->enPin, STOP);
+           digitalWrite(poseRotMotorPtr->in1Pin, LOW); digitalWrite(poseRotMotorPtr->in2Pin, LOW);
+           poseRotMotorPtr->state = MOTOR_IDLE;
+       }
+       Serial.println("MoveToPose interrupted by new command.");
+    }
 
+    // --- Execute or Clear ---
     if (!ignoreCmd) {
         parse(); // Parse and initiate the new command if not ignored
     } else {
-        // Clear the buffer if the command was ignored
-        for (int i = 0; i < bufLen; i++) { inputString[i] = '\0'; }
+        // Clear the buffer because the command was ignored
+       inputString[0] = '\0'; // Clear first char is enough for readCmdLine logic
+       // Optional: Clear whole buffer for safety
+       // for (int i = 0; i < bufLen; i++) { inputString[i] = '\0'; }
     }
   }
 }
