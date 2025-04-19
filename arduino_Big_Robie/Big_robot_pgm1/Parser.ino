@@ -141,9 +141,9 @@ void parse(void)
 			Serial.println("8"); // Command confirmation
 			break;
 		case 'W': // Start Left Wave (Non-Blocking)
+      // Busy check handled in loop() before calling parse()
 			startWaveLeft();
 			// Serial output now handled within start/update functions
-			// Serial.println("W");
 			break;
 			// case 'X':   // complex cmds
 			// Serial.println("X");
@@ -153,9 +153,9 @@ void parse(void)
 			// j = j + (temp);
 			//   break;
 		case 'E': // Start Right Wave (Non-Blocking)
+      // Busy check handled in loop() before calling parse()
 			startWaveRight();
       // Serial output now handled within start/update functions
-			// Serial.println("E");
 			break;
 		default:
 			Serial.print(cmd);
