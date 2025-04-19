@@ -95,23 +95,34 @@ pairs until movement is complete.
 
 Things Robie could really use:
 
-### Hardware upgrades & fixes
+### Mechanical upgrades & fixes desired
 
-- Mechanical: Head pan seems to get jambed up - doesn't run freely from
+- Mechanical: Head pan seems to get bound up - doesn't run freely from
 limit to limit. Mechanical connection to all-thread is not stable. Encoder
-disk doesn't secure properly. Mount for step motor prevents electronics door
-from closing.
+disk doesn't secure properly.
+- Mount for step motor prevents electronics door from closing.
+
+### Electrical upgrades & fixes desired
+
 - The connectors for the right shoulder pots should be on keyed wiremount
 connectors that don't fall apart all the time
+- The flying lead going to D35 which drives the right wrist needs to
+get wired to a terminal block, and thence to a 3-wire (at least) unique
+connector going up into the arm, replacing the XT30 that currently
+supplies power to the right wrist.
 - An elbow (with a BLDC motor) would give it much more expressiveness.
 
-### Proposed changes to API
+### Software upgrades & fixes desired
 
-- Provide for simultaneous movement of multiple actuators (asynchronous
-operation))
 - Provide a parser better suited to computer control. The current
 parser is good for human interaction, but has weaknesses for
-API interaction (irregular feedback) and not suited to async operation
+API interaction (irregular feedback) and is not suited to async operation.
+It would be desirable for it to use a different serial port, and be a
+whole different parser that uses json to pass commands & status, so
+as to retain the debug output and human-interactive aspects of the
+current parser on the arduino serial port.
+- Replace the haar-cascade face recognizer with an AI face recognizer, which
+would be much more reliable at detecting faces.
 
 ## Media
 

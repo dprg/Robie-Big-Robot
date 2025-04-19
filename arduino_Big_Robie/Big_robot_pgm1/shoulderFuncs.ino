@@ -134,5 +134,3 @@ void updateMoveToPose() {
      // delay(10); // Avoid flooding serial
   }
 }
-
-// Removed old blocking moveToPose function

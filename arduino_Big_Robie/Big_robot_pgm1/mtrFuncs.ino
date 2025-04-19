@@ -5,7 +5,7 @@
  *************************************************/
 
 // --- Stepper Motor Control (Pan) ---
-const int STEPPER_MICROSTEPS_PER_COMMAND = 6; // Number of micro-steps per L/R command (was loop j=0 to 5)
+const int STEPPER_MICROSTEPS_PER_COMMAND = 6; // Number of micro-steps per L/R command
 
 // Starts a non-blocking sequence of micro-steps for the stepper motor
 void startStepperStep(int direction, motor *mtr) {
@@ -160,7 +160,7 @@ void updateDcMotors() {
         digitalWrite(mtr->in1Pin, LOW); // Ensure motor pins are low for brake/coast
         digitalWrite(mtr->in2Pin, LOW);
         mtr->state = MOTOR_IDLE;
-        Serial.println("DC Step Complete.");
+        // Serial.println("DC Step Complete.");
       }
     }
   }
@@ -236,7 +236,3 @@ bool chkLimitSwState(motor *mtr)
 	}
   return false; // No limit hit
 }
-
-// Removed old blocking dcMtrTakeStep function
-// Removed old blocking step function (integrated into updateStepperMotor)
-// Removed old setMotor function (replaced by startStepperStep/startDcMotorStep)
