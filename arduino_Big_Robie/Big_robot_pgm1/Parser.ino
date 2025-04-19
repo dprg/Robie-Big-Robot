@@ -80,7 +80,7 @@ void parse(void)
 			Serial.println("4");
 			break;
 		case '5':
-			moveToPose(342, 550, DEAD_BAND, ptrRightShoulderLiftMtr, ptrRightShoulderRotMtr); // 500,500
+			moveToPose(104, 872, DEAD_BAND, ptrRightShoulderLiftMtr, ptrRightShoulderRotMtr); // 500,500
 			// temp = analogRead(POT_LIFT);
 			// Serial.print(temp);
 			// Serial.print(',');
@@ -90,7 +90,7 @@ void parse(void)
 			Serial.println("5");
 			break;
 		case '6':
-			moveToPose(275, 540, DEAD_BAND, ptrRightShoulderLiftMtr, ptrRightShoulderRotMtr); // 200,560
+			moveToPose(103, 556, DEAD_BAND, ptrRightShoulderLiftMtr, ptrRightShoulderRotMtr); // 200,560
 			// temp = analogRead(POT_LIFT);
 			// Serial.print(temp);
 			// Serial.print(',');
@@ -100,7 +100,7 @@ void parse(void)
 			Serial.println("6");
 			break;
 		case '7':
-			moveToPose(600, 875, DEAD_BAND, ptrRightShoulderLiftMtr, ptrRightShoulderRotMtr); // 770,900
+			moveToPose(225, 552, DEAD_BAND, ptrRightShoulderLiftMtr, ptrRightShoulderRotMtr); // 770,900
 			// temp = analogRead(POT_LIFT);
 			// Serial.print(temp);
 			// Serial.print(',');
@@ -110,7 +110,7 @@ void parse(void)
 			Serial.println("7");
 			break;
 		case '8':
-			moveToPose(600, 225, DEAD_BAND, ptrRightShoulderLiftMtr, ptrRightShoulderRotMtr); // 770, 250
+			moveToPose(373, 543, DEAD_BAND, ptrRightShoulderLiftMtr, ptrRightShoulderRotMtr); // 770, 250
 			// temp = analogRead(POT_LIFT);
 			// Serial.print(temp);
 			// Serial.print(',');
