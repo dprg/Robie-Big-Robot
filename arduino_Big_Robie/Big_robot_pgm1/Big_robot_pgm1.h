@@ -62,15 +62,14 @@ extern unsigned long waveRightNextStepMillis;
 extern int waveRightCurrentPos;
 extern int waveRightRepetitions;
 
-// Pose Movement State
-extern bool isMovingToPose;
-extern int poseTargetLift;
-extern int poseTargetRot;
-extern int poseDeadband;
-extern motor *poseLiftMotorPtr;
-extern motor *poseRotMotorPtr;
+// Forward declaration of the struct tag
+struct motor;
 
+// Typedef for the struct pointer *before* the struct definition
+// This allows using 'motor*' in the extern declarations below.
+// However, a simpler approach is just moving the full typedef before the externs.
 
+// Full motor struct definition
 typedef struct motor
 {
 	int type;
@@ -97,6 +96,16 @@ typedef struct motor
   unsigned long stepTargetMillis; // End time for DC step or time for next micro-step
   int microStepsRemaining; // For stepper motor control
 } motor;
+
+
+// Pose Movement State (Now declared after motor type is defined)
+extern bool isMovingToPose;
+extern int poseTargetLift;
+extern int poseTargetRot;
+extern int poseDeadband;
+extern motor *poseLiftMotorPtr;
+extern motor *poseRotMotorPtr;
+
 
 // Function Prototypes for non-blocking operations
 void updateDcMotors(void);

@@ -1,12 +1,5 @@
-void tilt(motor *mtr)
-{
-	setMotor(mtr->dir, mtr->speed, mtr);
-}
-
-void pan(motor *mtr)
-{
-	setMotor(mtr->dir, mtr->speed, mtr);
-}
+// Removed obsolete tilt() and pan() functions as they called the removed setMotor()
+// Commands 'U','D','L','R' now directly use non-blocking start functions.
 
 void tiltWithFback(int targetY, int mtrZoneBoundries[], motor *mtr)
 { // assumes targetY goes to zero as you approach target
