@@ -62,13 +62,6 @@ extern unsigned long waveRightNextStepMillis;
 extern int waveRightCurrentPos;
 extern int waveRightRepetitions;
 
-// Forward declaration of the struct tag
-struct motor;
-
-// Typedef for the struct pointer *before* the struct definition
-// This allows using 'motor*' in the extern declarations below.
-// However, a simpler approach is just moving the full typedef before the externs.
-
 // Full motor struct definition
 typedef struct motor
 {
