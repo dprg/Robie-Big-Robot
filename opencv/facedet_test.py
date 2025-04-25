@@ -53,7 +53,7 @@ def getch():
     return ch
 
 #cap = cv2.VideoCapture(0) # Laptop Cam
-cap = cv2.VideoCapture(2) #Robie Cam
+cap = cv2.VideoCapture(1) #Robie Cam
 
 # initialize the face recognizer (default face haar cascade)
 #face_cascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
@@ -73,7 +73,11 @@ try:
 except:
     print("Unable to open camera")
 
+motion_time_last = time.monotonic()
+
+pose = 5
 while True and hasCamera:
+    robie_serial.reset_input_buffer()
     # read the image from the cam
     _, image = cap.read()
     # converting to grayscale
@@ -120,23 +124,29 @@ while True and hasCamera:
         if react!="CC" :
             print(react)
             robie_serial.write(react.encode('ascii')) 
-            time.sleep(0.5)
+            time.sleep(0.15)
         else : 
             print("CC",end="\r")
-    #else :
-    #    print(".",end="")
+        if (time.monotonic() - motion_time_last) > 5.0 :
+            robie_serial.write("WE".encode('ascii'))
+            robie_serial.write(str(pose).encode('ascii'))
+            pose = pose +1
+            if pose == 8 : pose =5
+            motion_time_last = time.monotonic()
+    else :
+        motion_time_last = time.monotonic()
 
-    if (operating_system=="windows"):
-        c = getch()
-        if msvcrt.kbhit():
-            c = msvcrt.getch()
-            print(c)
-            robie_serial.write(c)       
-    elif(operating_system=="linux"):
-        if sys.stdin in select([sys.stdin], [], [], 0)[0]:
-            c = getch()
-            print(c)
-            robie_serial.write(c.encode('ascii'))
+    # if (operating_system=="windows"):
+    #     c = getch()
+    #     if msvcrt.kbhit():
+    #         c = msvcrt.getch()
+    #         print(c)
+    #         robie_serial.write(c)       
+    # elif(operating_system=="linux"):
+    #     if sys.stdin in select([sys.stdin], [], [], 0)[0]:
+    #         c = getch()
+    #         print(c)
+    #         robie_serial.write(c.encode('ascii'))
             
     cv2.imshow("image", image)
 
