@@ -82,7 +82,7 @@ motion_time_period = 7.0
 
 scan_left = False
 scanlr_cnt = 0
-scanlr_cnt_max = 20
+scanlr_cnt_max = 40
 scan_up = False
 scanud_cnt = 0
 scanud_cnt_max = 10
