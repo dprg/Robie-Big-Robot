@@ -2,3 +2,4 @@ opencv/opencv
 .vscode
 __pycache__*
 .aider*
+KiCad/head_ctrl/head_ctrl-backups
