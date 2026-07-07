@@ -6,14 +6,36 @@ Files related to Robie, the 7-foot tall DPRG mascot.
 CAD models are in mechanical/cad_files. At the time of repo creation they contain 
 the design files delivered by Ron Grant to Paul Bouchier on 26 Feb 2025.
 
-Arduino files are as delivered by Doug Paradis to Paul Bouchier on March 2 2025. There
-are two source code directories: Big_robot_pgm1 and Big_robot_pgm2.
-Except for the name of two files having been changed, all files in the two directories
-are identical. 
+Arduino files are as delivered by Doug Paradis to Paul Bouchier on March 2 2025. 
+There are two Arduino source code directories: Big_robot_pgm1 and Robie_neck_eyes.
+
+Mike Williamson added the Robie_neck_eyes code for the head UNO 7/7/2026.
+
+Raspberry Pi4 files TBD
 
 ## Motors
 
-### Head Pan Motor
+### New Head Pan Motor
+
+A stepper motor to pan the head is now located in the neck of Robie instead of in the torso.
+
+It uses a BigTreeTech TMC2209 stepper controller module controlled my the head UNO.
+The head movement limit is now detected by current sensing stall technology in the 2209.
+
+There are still 20 command steps for full range using 'L' and 'R' char commands.
+There is also a new head center 'C' command.
+
+### New Head Tilt Motor
+
+A stepper motor to tilt the head is now located in the neck of Robie instead of in the torso.
+
+It uses a BigTreeTech TMC2209 stepper controller module controlled my the head UNO.
+The head movement limit is now detected by current sensing stall technology in the 2209.
+
+There are 10 command steps for full range using 'U' and 'D' char commands.
+There is also a new head center 'C' command.
+
+### Old Head Pan Motor
 
 The head pan motor is a step motor, with limit sensing provided by a slotted disk and opto
 sensor in the torso. At startup, the head needs to not be at a limit. Each step motor step
@@ -24,7 +46,7 @@ There are ***  *** moves from limit to limit.
 Current position could be found by tracking move commands, within the accuracy bounds
 set by the auto-reverse-on-limit behavior.
 
-### Head tilt motor
+### Old Head tilt motor
 
 The head tilt motor is a DC motor, with HW limit switches that interrupt
 motor power when a limit is hit. The limit state is not available to FW.
@@ -65,7 +87,7 @@ based on how far the applied PWM is from mid-range.
 ## Arduino API
 
 The commands available from the arduino are listed here. They are received on the serial
-port, and can come from a human on a comms terminal or a program driving serial commands.
+ports, and can come from a human on a comms terminal or a program driving serial commands.
 
 ---
 
@@ -90,6 +112,27 @@ in forward and up)motion. Similar response as 1 except echoes 2
 - 4 - The opposite of 2. Similar response as 1 except echoes 4
 - 5, 6, 6, 7 - Move to fixed poses. Responds with a series of (lift_feedback, rotate_feedback)
 pairs until movement is complete.
+
+The LRUD commands are now processed in the UNO in its head.
+A new C (Center) command centers the head to look slightly down and straight ahead.
+
+## Electronics, power distribution and wiring
+
+
+### Raspberry Pi4
+There is a Pi4 in the torso that processes the images from the head camera and send commands to the Torso MEGA and Head UNO over USB serial cables. 
+
+### Torso Arduino MEGA controller
+The MEGA controls the arms and wrist movements.
+The head movement are now controlled by the UNO in its head.
+
+### Head Arduino UNO controller
+The UNU now has a DIY shield for the TMC2209 stepper motor modules 
+and eyes and 12V connections.
+![Robie head and eyes UNO with shield](electrical/robie_head_UNO.jpg)
+![Robie head and eyes schematic](electrical/robie_head_neck_UNO_schematics.jpg)
+
+
 
 ## Robie's Want List
 
@@ -156,3 +199,6 @@ https://thepythoncode.com/article/detect-faces-opencv-python
 <br>
 Paul B 4/1/2025
 Removed duplicate arduino directory Big_robot_pgm2. Added image to README.md
+<br>
+Mikew 7/7/2026<br>
+Added code for the UNO in Robie's head. It now controlls the pan and tilt steppers as well as the eyes
