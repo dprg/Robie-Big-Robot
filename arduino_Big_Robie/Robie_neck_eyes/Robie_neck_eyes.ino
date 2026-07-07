@@ -35,17 +35,15 @@ SoftwareSerial swSerial(SW_RX, SW_TX);
 #define R_SENSE 0.11f // Match to your driver
                       // SilentStepStick series use 0.11
 
-// driver0 and stepper0 controls the head tilt
+// TILT driver0 and stepper0 controls the head tilt
 TMC2209Stepper driver0(&swSerial, R_SENSE, DRIVER0_ADDRESS);  
-
 #define STEPPER0_STALLVALUE  0 // [0..255]
 #define STEPPER0_I 			     600 // ma
 #define STEPPER0_MICROSTEPS  4 // 1/N micro stepping 2,4,8,16,32
 
-// driver1 and stepper1 controls the head pan
+// PAN driver1 and stepper1 controls the head pan
 TMC2209Stepper driver1(&swSerial, R_SENSE, DRIVER1_ADDRESS);  
-
-#define STEPPER1_STALLVALUE  1 // [0..255]
+#define STEPPER1_STALLVALUE  0 // [0..255]
 #define STEPPER1_I 			     800 // ma
 #define STEPPER1_MICROSTEPS  64 // 1/N micro stepping 2,4,8,16,32
 
@@ -394,14 +392,14 @@ void steppersTask(uint32_t now_us){
 		else if(centerState==PanLimitA) {
 			// Move head Left 
 			if(stepper1_finished) {
-				digitalWrite(stepper0_dirPin, STEPPER1_LDIR); // LEFT direction
+				digitalWrite(stepper1_dirPin, STEPPER1_LDIR); // LEFT direction
 				steppers.start_finite(1, STEPPER1_STEPDELAY, 
 								int(STEPPER1_LRSTEPS*STEPPER1_NCMDS_FS));
 				centerState = PanLimitB;
 			}
 		}
 		else if(centerState==PanLimitB) {
-			// keep moving up until stall or stepper finished movement
+			// keep moving left until stall or stepper finished movement
 			if(panStallDet || stepper1_finished) {
 				panStallDet = false;
 				steppers.stop(1);
