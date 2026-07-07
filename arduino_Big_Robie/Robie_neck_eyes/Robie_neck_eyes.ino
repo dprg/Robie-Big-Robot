@@ -7,15 +7,15 @@
 #define USB_SERIAL_BAUD 115200L
 #define STEPPER_SERIAL_BAUD 115200L
 
-#define motor0_enaPin 5
-#define motor0_stepPin    4
-#define motor0_dirPin     3
-#define motor0_diagPin    2
+#define stepper0_enaPin 5
+#define stepper0_stepPin    4
+#define stepper0_dirPin     3
+#define stepper0_diagPin    2
 
-#define motor1_enaPin 9
-#define motor1_stepPin    8
-#define motor1_dirPin     7
-#define motor1_diagPin    6
+#define stepper1_enaPin 9
+#define stepper1_stepPin    8
+#define stepper1_dirPin     7
+#define stepper1_diagPin    6
 
 #define SW_RX            10 // SoftwareSerial receive pin
 #define SW_TX            11 // SoftwareSerial transmit pin
@@ -24,8 +24,6 @@
 #define diagLedPin			 13
 
 MultiStepperLite steppers(2); //initialize for 2 motors
-
-bool motor0_finish_signalled = false;
 
 SoftwareSerial swSerial(SW_RX, SW_TX);
 
@@ -37,12 +35,51 @@ SoftwareSerial swSerial(SW_RX, SW_TX);
 #define R_SENSE 0.11f // Match to your driver
                       // SilentStepStick series use 0.11
 
-// Select your stepper driver type
-//TMC2209Stepper driver(&SERIAL_PORT, R_SENSE, DRIVER_ADDRESS);
+// driver0 and stepper0 controls the head tilt
 TMC2209Stepper driver0(&swSerial, R_SENSE, DRIVER0_ADDRESS);  
+
+#define STEPPER0_STALLVALUE  0 // [0..255]
+#define STEPPER0_I 			     600 // ma
+#define STEPPER0_MICROSTEPS  4 // 1/N micro stepping 2,4,8,16,32
+
+// driver1 and stepper1 controls the head pan
 TMC2209Stepper driver1(&swSerial, R_SENSE, DRIVER1_ADDRESS);  
 
-#define STALL_VALUE     50 // [0..255]
+#define STEPPER1_STALLVALUE  1 // [0..255]
+#define STEPPER1_I 			     800 // ma
+#define STEPPER1_MICROSTEPS  64 // 1/N micro stepping 2,4,8,16,32
+
+// stepper motion configuration - does not configure 2290 module
+// TILT Up Down
+#define STEPPER0_TIME_FS		 1500 // full scale travel time ms
+#define STEPPER0_NCMDS_FS    10 // Number of UD commands to travel full scale
+#define STEPPER0_STEPS_FS    34 // full scale range steps not micro steps
+#define STEPPER0_STEPS       (STEPPER0_MICROSTEPS*STEPPER0_STEPS_FS) // micro steps
+#define STEPPER0_STEPDELAY   (1000L*STEPPER0_TIME_FS/(STEPPER0_STEPS)) // usec per microstep
+#define STEPPER0_UDSTEPS		 (STEPPER0_STEPS/STEPPER0_NCMDS_FS) // UD commaand steps
+#define STEPPER0_UDIR        0 // tilt up stepper direction
+#define STEPPER0_DDIR        1 // tilt down stepper direction
+// PAN Right Left
+#define STEPPER1_TIME_FS		 5000 // full scale travel time ms
+#define STEPPER1_NCMDS_FS    20 // Number of RL commands to travel full scale
+#define STEPPER1_STEPS_FS    124 // full scale range steps not micro steps
+#define STEPPER1_STEPS       (STEPPER1_MICROSTEPS*STEPPER1_STEPS_FS) // micro steps
+#define STEPPER1_STEPDELAY   (1000L*STEPPER1_TIME_FS/(STEPPER1_STEPS)) // usec per microstep
+#define STEPPER1_LRSTEPS		 (STEPPER1_STEPS/STEPPER1_NCMDS_FS) // RL command steps
+#define STEPPER1_LDIR        0 // pan left stepper direction
+#define STEPPER1_RDIR        1 // pan right stepper direction
+
+enum headCmds {
+	Idle,
+	Center,
+	Left,
+	Right,
+	Up,
+	Down
+};
+
+headCmds headCmd = Idle;
+
 
 //EYES
 // How many NeoPixels are attached to the Arduino?
@@ -65,54 +102,49 @@ void setupDrivers() {
 
   driver0.toff(4);
   driver0.blank_time(24);
-
-  driver0.rms_current(200);        // Set motor RMS current
-  driver0.microsteps(16);          // Set microsteps to 1/16th
-
   driver0.TCOOLTHRS(0xFFFFF); // 20bit max
   driver0.semin(5);
   driver0.semax(2);
   driver0.sedn(0b01);
-  driver0.SGTHRS(STALL_VALUE);
+
+  driver0.rms_current(STEPPER0_I);        // Set motor RMS current
+  driver0.microsteps(STEPPER0_MICROSTEPS);          // Set microsteps to 1/16th
+  driver0.SGTHRS(STEPPER0_STALLVALUE);
 
 	// Stepper driver 1
   driver1.begin();
 
   driver1.toff(4);
   driver1.blank_time(24);
-
-  driver1.rms_current(200);        // Set motor RMS current
-  driver1.microsteps(16);          // Set microsteps to 1/16th
-
   driver1.TCOOLTHRS(0xFFFFF); // 20bit max
   driver1.semin(5);
   driver1.semax(2);
   driver1.sedn(0b01);
-  driver1.SGTHRS(STALL_VALUE);
 
-//driver0.en_pwm_mode(true);       // Toggle stealthChop on TMC2130/2160/5130/5160
-//driver0.en_spreadCycle(false);   // Toggle spreadCycle on TMC2208/2209/2224
-//driver0.pwm_autoscale(true);     // Needed for stealthChop
+  driver1.rms_current(STEPPER1_I);        // Set motor RMS current
+  driver1.microsteps(STEPPER1_MICROSTEPS);          // Set microsteps to 1/16th
+  driver1.SGTHRS(STEPPER1_STALLVALUE);
+
 }
 
 
 void setupSteppers() {
 	//enable both motors and set directions
-	pinMode(motor0_enaPin, OUTPUT);
-	pinMode(motor0_dirPin, OUTPUT);
-	pinMode(motor0_diagPin, INPUT);
-	digitalWrite(motor0_enaPin, LOW);
-	digitalWrite(motor0_dirPin, LOW);
+	pinMode(stepper0_enaPin, OUTPUT);
+	pinMode(stepper0_dirPin, OUTPUT);
+	pinMode(stepper0_diagPin, INPUT);
+	digitalWrite(stepper0_enaPin, LOW);
+	digitalWrite(stepper0_dirPin, LOW);
 
-	pinMode(motor1_enaPin, OUTPUT);
-	pinMode(motor1_dirPin, OUTPUT);
-	pinMode(motor1_diagPin, INPUT);
-	digitalWrite(motor1_enaPin, LOW);
-	digitalWrite(motor1_dirPin, LOW);
+	pinMode(stepper1_enaPin, OUTPUT);
+	pinMode(stepper1_dirPin, OUTPUT);
+	pinMode(stepper1_diagPin, INPUT);
+	digitalWrite(stepper1_enaPin, LOW);
+	digitalWrite(stepper1_dirPin, LOW);
 
 	//initialize each of 2 motors with their index and their step pin
-	steppers.init_stepper(0, motor0_stepPin);
-	steppers.init_stepper(1, motor1_stepPin);
+	steppers.init_stepper(0, stepper0_stepPin);
+	steppers.init_stepper(1, stepper1_stepPin);
 }
 
 void setupEyes(){
@@ -135,11 +167,12 @@ void setup() {
 
 	setupSteppers();
 
-	//start motor 0, with 400 microseconds delay between steps and with finite steps of 2500
-	steppers.start_finite(0, 400, 2500);
+	// //start motor 0, with 400 microseconds delay between steps and with finite steps of 2500
+	// steppers.start_finite(0, STEPPER0_STEPDELAY, STEPPER0_STEPS);
 
-	//start motor 1 to run indefinitely
-	steppers.start_continuous(1, 400);
+
+	// //start motor 0, with 400 microseconds delay between steps and with finite steps of 2500
+	// steppers.start_finite(1, STEPPER1_STEPDELAY, STEPPER1_STEPS);
 
 	setupEyes();
 
@@ -149,12 +182,48 @@ void loop() {
   uint32_t now_ms = millis();
 	uint32_t now_us = micros();
 
+	commandsTask(now_ms);
+
 	steppersTask(now_us);
 
 	diagTask(now_ms);
 
 	eyesTask(now_ms);
 
+}
+
+
+// Process serial port for commands
+// Single char comads are:
+// C Center head pan and tilt (uses stops to calibrate movement)
+// R L Pan head Right and left 1 movement
+// U D Tilt head Up and Down 1 movement
+void	commandsTask(uint32_t now_ms) {
+	if(headCmd != Idle) return;
+
+	if(!Serial.available()) return;
+	// read serial port character
+	char c = Serial.read();
+	if (c=='C') {
+		Serial.println("Center head position");
+		headCmd = Center;
+	}
+	else if (c=='R') {
+		Serial.println("Pan head RIGHT");
+		headCmd = Right;
+	}
+	else if (c=='L') {
+		Serial.println("Pan head LEFT");
+		headCmd = Left;
+	}
+	else if (c=='U') {
+		Serial.println("Tilt head UP");
+		headCmd = Up;
+	}
+	else if (c=='D') {
+		Serial.println("Tilt head DOWN");
+		headCmd = Down;
+	}
 }
 
 void eyesTask(uint32_t now_ms) {
@@ -191,45 +260,171 @@ static uint32_t last_ms = 0;
 
 }
 
+bool tiltStallDet = false;
+bool panStallDet  = false;
 
 void diagTask(uint32_t now_ms) {
   static uint32_t last_time=0;
+	static int diag0 = 0;
+	static int diag1 = 0;
+	static bool lastDiag0Pin = false;
+	static bool lastDiag1Pin = false;
+
+	bool currentDiag0Pin = digitalRead(stepper0_diagPin);
+	bool currentDiag1Pin = digitalRead(stepper1_diagPin);
+
+	diag0 += ((!lastDiag0Pin)&&currentDiag0Pin)?1:0;
+	diag1 += ((!lastDiag1Pin)&&currentDiag1Pin)?1:0;
+	
+	lastDiag0Pin = currentDiag0Pin;
+	lastDiag1Pin = currentDiag1Pin;
 
   if((now_ms-last_time) > 100) { //run every 0.1s
     last_time = now_ms;
 
-		bool diag0 = digitalRead(motor0_diagPin);
-		bool diag1 = digitalRead(motor1_diagPin);
-		digitalWrite(diagLedPin, (diag0|diag1));
-    Serial.print(diag1); Serial.print(diag0);
+		digitalWrite(diagLedPin, (diag0>0|diag1>0));
+    Serial.print(diag1); Serial.print(" "); Serial.print(diag0);
 
-		// NOTE: reading driver consumes a lot of cycles and slows the stepper
+		if(diag0>0) tiltStallDet = true;
+		if(diag1>0) panStallDet  = true;
+
+		diag0 = 0;
+		diag1 = 0;
+
+		// NOTE: reading driver consumes a lot of cycles and slows the stepper motion and eyes
 		// uint16_t sg = driver0.SG_RESULT();
-		// uint16_t cs = driver0.cs2rms(driver0.cs_actual());
-    // Serial.print("0 ");
-    // Serial.print(sg, DEC);
     // Serial.print(" ");
-    // Serial.print(cs , DEC);
+    // Serial.print(sg, DEC);
 
 		Serial.println();
 	}
 }
+
+enum centerStates {
+	Wait,
+	TiltLimitA,
+	TiltLimitB,
+	TiltCenterA,
+	TiltCenterB,
+	PanLimitA,
+	PanLimitB,
+	PanCenterA,
+	PanCenterB,
+	Done
+};
+
 void steppersTask(uint32_t now_us){
+
 	steppers.do_tasks(now_us);
 	//alternatively, define uint32_t now_us = micros() and call steppers.do_tasks(now_us)
 	//this can be useful if micros() is already called for other purposes, as micros() is rather costly to call
 	//without an argument, the function calls micros() internally
 
-	if (steppers.is_finished(0)){ //if motor 0 completed all the steps
-		if (!motor0_finish_signalled) { //if end of motor task is not signalled already
-			// Serial.println("Motor 0 is finished.");
-			motor0_finish_signalled = true;
+	if (headCmd == Idle) return;
 
-      digitalWrite(motor0_dirPin, !digitalRead(motor0_dirPin));
-      steppers.start_finite(0, 400, 2500);
-			motor0_finish_signalled = false;
+	bool stepper0_finished = steppers.is_finished(0);
+	bool stepper1_finished = steppers.is_finished(1);
+	
+	if (stepper1_finished) {
+		if (headCmd == Left) {
+			digitalWrite(stepper1_dirPin, STEPPER1_LDIR);
+			steppers.start_finite(1, STEPPER1_STEPDELAY, STEPPER1_LRSTEPS);
+			headCmd = Idle;
+		}
+		else if (headCmd == Right) {
+      digitalWrite(stepper1_dirPin, STEPPER1_RDIR);
+      steppers.start_finite(1, STEPPER1_STEPDELAY, STEPPER1_LRSTEPS);
+			headCmd = Idle;
+		}	
+	}
 
+	if (stepper0_finished) {
+		if (headCmd == Up) {
+			digitalWrite(stepper0_dirPin, STEPPER0_UDIR);
+			steppers.start_finite(0, STEPPER0_STEPDELAY, STEPPER0_UDSTEPS);
+			headCmd = Idle;
+		}
+		else if (headCmd == Down) {
+      digitalWrite(stepper0_dirPin, STEPPER0_DDIR);
+      steppers.start_finite(0, STEPPER0_STEPDELAY, STEPPER0_UDSTEPS);
+			headCmd = Idle;
 		}
 	}
 
+	// Head centering command is a sequence of movements
+	static centerStates centerState = Wait;
+
+	if (headCmd == Center) {
+		if(centerState==Wait) {
+			centerState  = TiltLimitA;
+			tiltStallDet = false;
+			panStallDet  = false;
+		}
+		else if(centerState==TiltLimitA) {
+			// Move head Up 
+			if(stepper0_finished) {
+				digitalWrite(stepper0_dirPin, STEPPER0_UDIR); // UP direction
+				steppers.start_finite(0, STEPPER0_STEPDELAY, 
+								int(STEPPER0_UDSTEPS*STEPPER0_NCMDS_FS));
+				centerState = TiltLimitB;
+			}
+		}
+		else if(centerState==TiltLimitB) {
+			// keep moving up until stall or stepper finished movement
+			if(tiltStallDet || stepper0_finished) {
+				tiltStallDet = false;
+				steppers.stop(0);
+				centerState = TiltCenterA;
+			}
+		}
+		else if(centerState==TiltCenterA) {
+			// Move Down to center position
+			if(stepper0_finished) {
+				digitalWrite(stepper0_dirPin, STEPPER0_DDIR); // DOWN direction
+				steppers.start_finite(0, STEPPER0_STEPDELAY, 
+								int(STEPPER0_UDSTEPS*STEPPER0_NCMDS_FS*0.75));
+				centerState = TiltCenterB;
+			}
+		}
+		else if(centerState==TiltCenterB) {
+			if(stepper0_finished) {
+				centerState = PanLimitA;
+			}
+		}
+		else if(centerState==PanLimitA) {
+			// Move head Left 
+			if(stepper1_finished) {
+				digitalWrite(stepper0_dirPin, STEPPER1_LDIR); // LEFT direction
+				steppers.start_finite(1, STEPPER1_STEPDELAY, 
+								int(STEPPER1_LRSTEPS*STEPPER1_NCMDS_FS));
+				centerState = PanLimitB;
+			}
+		}
+		else if(centerState==PanLimitB) {
+			// keep moving up until stall or stepper finished movement
+			if(panStallDet || stepper1_finished) {
+				panStallDet = false;
+				steppers.stop(1);
+				centerState = PanCenterA;
+			}
+		}
+		else if(centerState==PanCenterA) {
+			// Move Right to center position
+			if(stepper1_finished) {
+				digitalWrite(stepper1_dirPin, STEPPER1_RDIR); // RIGHT direction
+				steppers.start_finite(1, STEPPER1_STEPDELAY, 
+								int(STEPPER1_LRSTEPS*STEPPER1_NCMDS_FS*0.5));
+				centerState = PanCenterB;
+			}
+		}
+		else if(centerState==PanCenterB) {
+			if(stepper1_finished) {
+				centerState = Done;
+			}
+		}
+		else if(centerState==Done) {
+			centerState = Wait;
+			headCmd = Idle;
+		}
+	}
 }
