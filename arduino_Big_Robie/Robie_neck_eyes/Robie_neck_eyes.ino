@@ -1,3 +1,30 @@
+/***********************************
+// Robie_neck_eyes Arduino sketch
+// Stored on GitHub https://github.com/dprg/2016-Club-Robot-Code
+//
+// Two steppers, head PAN and TILT
+// 27 Eye LEDs (neo-pixel type)
+//
+// Head serial character commands:
+// C - Centers the head looking slightly down
+// L - Look left
+// R - Look right
+// U - Look up
+// D - look down
+// Pan full range is 20 Rs or Ls
+// Tilt full range 10 Us or Ds
+// Multiple commnads can be sent per line string
+//
+// Eye default motion is a RED dot cycling left and right
+// But while responding to LRUD the eyes are blue dots in the
+// direction of movement
+//
+// The serial interface to the 2 stepper modules is a 
+// single bi-dir multi-drop wire
+// Each stepper module has its own address
+//
+// 7/7/2026 Mike Williamson
+***********************************/
 
 #include <TMCStepper.h>
 #include <SoftwareSerial.h>
@@ -7,15 +34,15 @@
 #define USB_SERIAL_BAUD 115200L
 #define STEPPER_SERIAL_BAUD 115200L
 
-#define stepper0_enaPin 5
-#define stepper0_stepPin    4
-#define stepper0_dirPin     3
-#define stepper0_diagPin    2
+#define stepper0_enaPin   5
+#define stepper0_stepPin  4
+#define stepper0_dirPin   3
+#define stepper0_diagPin  2
 
-#define stepper1_enaPin 9
-#define stepper1_stepPin    8
-#define stepper1_dirPin     7
-#define stepper1_diagPin    6
+#define stepper1_enaPin   9
+#define stepper1_stepPin  8
+#define stepper1_dirPin   7
+#define stepper1_diagPin  6
 
 #define SW_RX            10 // SoftwareSerial receive pin
 #define SW_TX            11 // SoftwareSerial transmit pin
@@ -25,7 +52,7 @@
 
 MultiStepperLite steppers(2); //initialize for 2 motors
 
-SoftwareSerial swSerial(SW_RX, SW_TX);
+SoftwareSerial swSerial(SW_RX, SW_TX); // For stepper config
 
 #define SERIAL_PORT Serial3 // TMC2208/TMC2224 HardwareSerial port
 #define DRIVER0_ADDRESS 0b00 // MS2,MS1  = 00
@@ -45,7 +72,7 @@ TMC2209Stepper driver0(&swSerial, R_SENSE, DRIVER0_ADDRESS);
 TMC2209Stepper driver1(&swSerial, R_SENSE, DRIVER1_ADDRESS);  
 #define STEPPER1_STALLVALUE  0 // [0..255]
 #define STEPPER1_I 			     800 // ma
-#define STEPPER1_MICROSTEPS  64 // 1/N micro stepping 2,4,8,16,32
+#define STEPPER1_MICROSTEPS  32 // 1/N micro stepping 2,4,8,16,32
 
 // stepper motion configuration - does not configure 2290 module
 // TILT Up Down
@@ -78,6 +105,28 @@ enum headCmds {
 
 headCmds headCmd = Idle;
 
+bool tiltStallDet = false;
+bool panStallDet  = false;
+
+// States for head centering
+enum centerStates {
+	Wait,
+	TiltLimitA,
+	TiltLimitB,
+	TiltCenterA,
+	TiltCenterB,
+	PanLimitA,
+	PanLimitB,
+	PanCenterA,
+	PanCenterB,
+	Done
+};
+
+bool panRightBusy = false;
+bool panLeftBusy  = false;
+bool tiltUpBusy   = false;
+bool tiltDownBusy = false;
+
 
 //EYES
 // How many NeoPixels are attached to the Arduino?
@@ -90,6 +139,8 @@ headCmds headCmd = Idle;
 // strandtest example for more information on possible values.
 Adafruit_NeoPixel pixels(NUMPIXELS, eyesPin, NEO_RGB + NEO_KHZ800);
 
+/////////////////////////////////////////////////////////////////////////
+// SETUP functions
 
 void setupDrivers() {
   //SERIAL_PORT.begin(STEPPER_SERIAL_BAUD);
@@ -124,7 +175,6 @@ void setupDrivers() {
   driver1.SGTHRS(STEPPER1_STALLVALUE);
 
 }
-
 
 void setupSteppers() {
 	//enable both motors and set directions
@@ -186,9 +236,6 @@ void	commandsTask(uint32_t now_ms) {
 	}
 }
 
-bool tiltStallDet = false;
-bool panStallDet  = false;
-
 void diagTask(uint32_t now_ms) {
   static uint32_t last_time=0;
 	static int diag0 = 0;
@@ -225,24 +272,6 @@ void diagTask(uint32_t now_ms) {
 		Serial.println();
 	}
 }
-
-enum centerStates {
-	Wait,
-	TiltLimitA,
-	TiltLimitB,
-	TiltCenterA,
-	TiltCenterB,
-	PanLimitA,
-	PanLimitB,
-	PanCenterA,
-	PanCenterB,
-	Done
-};
-
-bool panRightBusy = false;
-bool panLeftBusy  = false;
-bool tiltUpBusy   = false;
-bool tiltDownBusy = false;
 
 void steppersTask(uint32_t now_us){
 
@@ -442,17 +471,10 @@ void setup() {
 
   int ver0 = driver0.version();
   int ver1 = driver1.version();
-  Serial.print("Driver versions : "); Serial.print(ver0,DEC);
+  Serial.print("Driver version for stepper modules 0, 1 : "); Serial.print(ver0,DEC);
   Serial.print(", "); Serial.println(ver1,DEC);
 
 	setupSteppers();
-
-	// //start motor 0, with 400 microseconds delay between steps and with finite steps of 2500
-	// steppers.start_finite(0, STEPPER0_STEPDELAY, STEPPER0_STEPS);
-
-
-	// //start motor 0, with 400 microseconds delay between steps and with finite steps of 2500
-	// steppers.start_finite(1, STEPPER1_STEPDELAY, STEPPER1_STEPS);
 
 	setupEyes();
 
