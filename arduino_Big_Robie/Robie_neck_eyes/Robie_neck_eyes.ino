@@ -150,46 +150,8 @@ void setupEyes(){
   pixels.clear(); // Set all pixel colors to 'off'
 }
 
-
-void setup() {
-  Serial.begin(USB_SERIAL_BAUD);         // Init serial port and set baudrate
-  while(!Serial);               // Wait for serial port to connect
-  Serial.println("\nStart...");
-
-	setupDrivers();
-
-  int ver0 = driver0.version();
-  int ver1 = driver1.version();
-  Serial.print("Driver versions : "); Serial.print(ver0,DEC);
-  Serial.print(", "); Serial.println(ver1,DEC);
-
-	setupSteppers();
-
-	// //start motor 0, with 400 microseconds delay between steps and with finite steps of 2500
-	// steppers.start_finite(0, STEPPER0_STEPDELAY, STEPPER0_STEPS);
-
-
-	// //start motor 0, with 400 microseconds delay between steps and with finite steps of 2500
-	// steppers.start_finite(1, STEPPER1_STEPDELAY, STEPPER1_STEPS);
-
-	setupEyes();
-
-}
-
-void loop() {
-  uint32_t now_ms = millis();
-	uint32_t now_us = micros();
-
-	commandsTask(now_ms);
-
-	steppersTask(now_us);
-
-	diagTask(now_ms);
-
-	eyesTask(now_ms);
-
-}
-
+//////////////////////////////////////////////////////////////////////////////
+// LOOP tasks
 
 // Process serial port for commands
 // Single char comads are:
@@ -222,40 +184,6 @@ void	commandsTask(uint32_t now_ms) {
 		Serial.println("Tilt head DOWN");
 		headCmd = Down;
 	}
-}
-
-void eyesTask(uint32_t now_ms) {
-static int i = 0;
-static bool dir = true;
-static uint32_t last_ms = 0;
-
-	if((now_ms-last_ms) < DELAYVAL) return;
-	last_ms = now_ms;
-		pixels.clear(); // Set all pixel colors to 'off'
-
-	// The first NeoPixel in a strand is #0, second is 1, all the way up
-	// to the count of pixels minus one.
-	// for(int i=0; i<NUMPIXELS; i++) { // For each pixel...
-
-	// pixels.Color() takes RGB values, from 0,0,0 up to 255,255,255
-	// Here we're using a moderately bright red color:
-	pixels.setPixelColor(i, pixels.Color(150, 0, 0));
-	pixels.show();   // Send the updated pixel colors to the hardware.
-
-	if(dir) {
-		i++;
-		if(i==NUMPIXELS) {
-			dir = false;
-			i--;
-		}
-	} else {
-		i--;
-		if(i==-1) {
-			dir = true;
-			i++;
-		}
-	}
-
 }
 
 bool tiltStallDet = false;
@@ -311,6 +239,11 @@ enum centerStates {
 	Done
 };
 
+bool panRightBusy = false;
+bool panLeftBusy  = false;
+bool tiltUpBusy   = false;
+bool tiltDownBusy = false;
+
 void steppersTask(uint32_t now_us){
 
 	steppers.do_tasks(now_us);
@@ -318,21 +251,34 @@ void steppersTask(uint32_t now_us){
 	//this can be useful if micros() is already called for other purposes, as micros() is rather costly to call
 	//without an argument, the function calls micros() internally
 
-	if (headCmd == Idle) return;
-
 	bool stepper0_finished = steppers.is_finished(0);
 	bool stepper1_finished = steppers.is_finished(1);
+
+	//turn off busy flags when command finishes
+	if (stepper1_finished) {
+		if (panLeftBusy)  panLeftBusy  = false;
+		if (panRightBusy) panRightBusy = false;
+	}
+	if (stepper0_finished) {
+		if (tiltUpBusy)   tiltUpBusy   = false;
+		if (tiltDownBusy) tiltDownBusy = false;
+	}
+
+	if (headCmd == Idle) return;
+
 	
 	if (stepper1_finished) {
 		if (headCmd == Left) {
 			digitalWrite(stepper1_dirPin, STEPPER1_LDIR);
 			steppers.start_finite(1, STEPPER1_STEPDELAY, STEPPER1_LRSTEPS);
 			headCmd = Idle;
+			panLeftBusy = true;
 		}
 		else if (headCmd == Right) {
       digitalWrite(stepper1_dirPin, STEPPER1_RDIR);
       steppers.start_finite(1, STEPPER1_STEPDELAY, STEPPER1_LRSTEPS);
 			headCmd = Idle;
+			panRightBusy = true;
 		}	
 	}
 
@@ -341,11 +287,13 @@ void steppersTask(uint32_t now_us){
 			digitalWrite(stepper0_dirPin, STEPPER0_UDIR);
 			steppers.start_finite(0, STEPPER0_STEPDELAY, STEPPER0_UDSTEPS);
 			headCmd = Idle;
+			tiltUpBusy = true;
 		}
 		else if (headCmd == Down) {
       digitalWrite(stepper0_dirPin, STEPPER0_DDIR);
       steppers.start_finite(0, STEPPER0_STEPDELAY, STEPPER0_UDSTEPS);
 			headCmd = Idle;
+			tiltDownBusy = true;
 		}
 	}
 
@@ -425,4 +373,101 @@ void steppersTask(uint32_t now_us){
 			headCmd = Idle;
 		}
 	}
+}
+
+void eyesTask(uint32_t now_ms) {
+static int i = 0;
+static bool dir = true;
+static uint32_t last_ms = 0;
+
+	if((now_ms-last_ms) < DELAYVAL) return;
+
+	last_ms = now_ms;
+	pixels.clear(); // Set all pixel colors to 'off'
+	// The first NeoPixel in a strand is #0, second is 1, all the way up
+	// to the count of pixels minus one.
+	// for(int i=0; i<NUMPIXELS; i++) { // For each pixel...
+
+	if(panLeftBusy) {
+		pixels.setPixelColor(20, pixels.Color(0, 0, 200));
+		pixels.show();   // Send the updated pixel colors to the hardware.
+	}
+	else if(panRightBusy) {
+		pixels.setPixelColor(7, pixels.Color(0, 0, 200));
+		pixels.show();   // Send the updated pixel colors to the hardware.
+	}
+	else if(tiltUpBusy) {
+		pixels.setPixelColor(0, pixels.Color(0, 0, 200));
+		pixels.setPixelColor(26, pixels.Color(0, 0, 200));
+		pixels.show();   // Send the updated pixel colors to the hardware.
+	}
+	else if(tiltDownBusy) {
+		pixels.setPixelColor(12, pixels.Color(0, 0, 200));
+		pixels.setPixelColor(13, pixels.Color(0, 0, 200));
+		pixels.setPixelColor(14, pixels.Color(0, 0, 200));
+		pixels.show();   // Send the updated pixel colors to the hardware.
+	}
+	else {
+
+		// pixels.Color() takes RGB values, from 0,0,0 up to 255,255,255
+		// Here we're using a moderately bright red color:
+		pixels.setPixelColor(i, pixels.Color(150, 0, 0));
+		pixels.show();   // Send the updated pixel colors to the hardware.
+
+		if(dir) {
+			i++;
+			if(i==NUMPIXELS) {
+				dir = false;
+				i--;
+			}
+		} else {
+			i--;
+			if(i==-1) {
+				dir = true;
+				i++;
+			}
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+// setup and loop executive code
+
+void setup() {
+  Serial.begin(USB_SERIAL_BAUD);         // Init serial port and set baudrate
+  while(!Serial);               // Wait for serial port to connect
+  Serial.println("\nStart...");
+
+	setupDrivers();
+
+  int ver0 = driver0.version();
+  int ver1 = driver1.version();
+  Serial.print("Driver versions : "); Serial.print(ver0,DEC);
+  Serial.print(", "); Serial.println(ver1,DEC);
+
+	setupSteppers();
+
+	// //start motor 0, with 400 microseconds delay between steps and with finite steps of 2500
+	// steppers.start_finite(0, STEPPER0_STEPDELAY, STEPPER0_STEPS);
+
+
+	// //start motor 0, with 400 microseconds delay between steps and with finite steps of 2500
+	// steppers.start_finite(1, STEPPER1_STEPDELAY, STEPPER1_STEPS);
+
+	setupEyes();
+
+}
+
+void loop() {
+  uint32_t now_ms = millis();
+	uint32_t now_us = micros();
+
+	commandsTask(now_ms);
+
+	steppersTask(now_us);
+
+	diagTask(now_ms);
+
+	eyesTask(now_ms);
+
 }
