@@ -1,6 +1,7 @@
 /***********************************
 // Robie_neck_eyes Arduino sketch
-// Stored on GitHub https://github.com/dprg/2016-Club-Robot-Code
+// Stored on GitHub 
+// https://github.com/dprg/Robie-Big-Robot
 //
 // Two steppers, head PAN and TILT
 // 27 Eye LEDs (neo-pixel type)
