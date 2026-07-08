@@ -8,10 +8,19 @@ import traceback
 
 windowsHeadArduino = "com39"
 windowsBodyArduino = "com40"
-#linuxHeadArduino = "/dev/serial/by-id/usb-xxx"     # Arduino Uno in Robie head
-linuxHeadArduino = "/dev/null"     # Arduino Uno in Robie head
-#linuxBodyArduino = "/dev/serial/by-id/usb-xxx"     # Arduino Uno in Robie head
-linuxBodyArduino = "/dev/null"     # Arduino Uno in Robie head
+linuxHeadArduino = "/dev/serial/by-id/Head"     # Arduino Uno in Robie head
+linuxBodyArduino = "/dev/serial/by-id/Body"     # Arduino Mega in Robie torso
+
+class DummySerial:
+    def __init__(self, port):
+        print("DummySerial initialized. No actual serial communication will occur.")
+        self.port = port
+
+    def write(self, data):
+        print(f"DummySerial write to `{self.port}`: {data}")
+
+    def reset_input_buffer(self):
+        pass
 
 def get_os():
     platform = sys.platform
@@ -56,8 +65,10 @@ elif operating_system == "linux":
     import tty
     import termios
     try:
-        robie_head = serial.Serial(linuxHeadArduino)
-        robie_body = serial.Serial(linuxBodyArduino)
+        #robie_head = serial.Serial(linuxHeadArduino)
+        #robie_body = serial.Serial(linuxBodyArduino)
+        robie_head = DummySerial(linuxHeadArduino)
+        robie_body = DummySerial(linuxBodyArduino)
     except Exception as e:
         print("Unable to open Arduino serial ports")
         traceback.print_exc()
@@ -74,6 +85,8 @@ face_detection = mp_face_detection.FaceDetection(model_selection=0, min_detectio
 
 # Open the default camera (0 is usually the integrated Pi Cam or first USB webcam)
 cap = cv2.VideoCapture(0)
+# Set buffer size to 1 frame
+cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
 motion_time_last = time.monotonic()
 do_face_det_motions = True
@@ -89,7 +102,7 @@ scan_up = False
 scanud_cnt = 0
 scanud_cnt_max = 10
 
-loop_delay = 0.5
+loop_delay = 1000   # milliseconds
 
 h_mid = 0
 w_mid = 0
@@ -108,11 +121,16 @@ print("Starting face detection. Press 'q' in the window to quit...")
 while cap.isOpened():
     robie_head.reset_input_buffer()
 
-    # Read a frame from the camera
-    success, frame = cap.read()
+    # Flush the buffer: grab all waiting frames without decoding them
+    # Most webcams buffer between 2 to 5 frames
+    for _ in range(5):
+        cap.grab()
+        
+    # Retrieve the latest frame
+    success, frame = cap.retrieve()
     if not success:
         print("Ignoring empty camera frame.")
-        time.sleep(loop_delay)
+        time.sleep(loop_delay / 1000)  # Convert milliseconds to seconds
         continue
 
     # Convert the BGR image to RGB for MediaPipe processing
@@ -234,9 +252,6 @@ while cap.isOpened():
         print(scan_str)
         robie_head.write(scan_str.encode('ascii'))
 
-    # loop rate control
-    time.sleep(loop_delay) 
-
     # if (operating_system=="windows"):
     #     c = getch()
     #     if msvcrt.kbhit():
@@ -249,7 +264,7 @@ while cap.isOpened():
     #         print(c)
     #         robie_serial.write(c.encode('ascii'))
             
-    if cv2.waitKey(1) == ord("q"):
+    if cv2.waitKey(loop_delay) & 0xff == ord("q"):
         break
 
 cap.release()
