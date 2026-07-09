@@ -186,35 +186,35 @@ while cap.isOpened():
 
     react = ""
     if a > 600 :
-        if x > w_mid * 1.3 :
+        if x > w_mid * 1.2 :
             react+="R"
-        elif x < w_mid * 0.7 :
+        elif x < w_mid * 0.8 :
             react+="L"
         else :
-            react+=""
+            react+="X"
 
-        if y > h_mid * 1.3 :
+        if y > h_mid * 1.2 :
             react+="D"
-        elif y < h_mid * 0.7 :
+        elif y < h_mid * 0.8 :
             react+="U"
         else :
-            react+=""
+            react+="X"
 
     # process face status 
     # L = move head right, R = move head left
     # U = move head up, D = move head down
     # LU, LD, RU RD face detected move head to center it
-    # CC = dont move head the face is centered
+    # XX = dont move head the face is centered
     # "" = face is not detected, scan for a face
     if react!="" :
-        if react!="CC" :
+        if react!="XX" :
             print(react)
             robie_head.write(react.encode('ascii')) 
             do_face_det_motions = True
             motion_time_last = time.monotonic()
         else : 
             det_str = ""
-            #print("CC",end="\r")
+            print("XX",end="\r")
             if do_face_det_motions :
                 det_str += f"WE{pose}"
                 robie_body.write("WE".encode('ascii'))
