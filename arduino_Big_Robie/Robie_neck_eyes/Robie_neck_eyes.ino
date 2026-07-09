@@ -66,18 +66,18 @@ SoftwareSerial swSerial(SW_RX, SW_TX); // For stepper config
 // TILT driver0 and stepper0 controls the head tilt
 TMC2209Stepper driver0(&swSerial, R_SENSE, DRIVER0_ADDRESS);  
 #define STEPPER0_STALLVALUE  0 // [0..255]
-#define STEPPER0_I 			     600 // ma
+#define STEPPER0_I 			     800 // ma
 #define STEPPER0_MICROSTEPS  4 // 1/N micro stepping 2,4,8,16,32
 
 // PAN driver1 and stepper1 controls the head pan
 TMC2209Stepper driver1(&swSerial, R_SENSE, DRIVER1_ADDRESS);  
 #define STEPPER1_STALLVALUE  0 // [0..255]
 #define STEPPER1_I 			     800 // ma
-#define STEPPER1_MICROSTEPS  32 // 1/N micro stepping 2,4,8,16,32
+#define STEPPER1_MICROSTEPS  16 // 1/N micro stepping 2,4,8,16,32
 
 // stepper motion configuration - does not configure 2290 module
 // TILT Up Down
-#define STEPPER0_TIME_FS		 1500 // full scale travel time ms
+#define STEPPER0_TIME_FS		 1000 // full scale travel time ms
 #define STEPPER0_NCMDS_FS    10 // Number of UD commands to travel full scale
 #define STEPPER0_STEPS_FS    34 // full scale range steps not micro steps
 #define STEPPER0_STEPS       (STEPPER0_MICROSTEPS*STEPPER0_STEPS_FS) // micro steps
@@ -86,14 +86,14 @@ TMC2209Stepper driver1(&swSerial, R_SENSE, DRIVER1_ADDRESS);
 #define STEPPER0_UDIR        0 // tilt up stepper direction
 #define STEPPER0_DDIR        1 // tilt down stepper direction
 // PAN Right Left
-#define STEPPER1_TIME_FS		 5000 // full scale travel time ms
+#define STEPPER1_TIME_FS		 3000 // full scale travel time ms
 #define STEPPER1_NCMDS_FS    20 // Number of RL commands to travel full scale
 #define STEPPER1_STEPS_FS    124 // full scale range steps not micro steps
 #define STEPPER1_STEPS       (STEPPER1_MICROSTEPS*STEPPER1_STEPS_FS) // micro steps
 #define STEPPER1_STEPDELAY   (1000L*STEPPER1_TIME_FS/(STEPPER1_STEPS)) // usec per microstep
 #define STEPPER1_LRSTEPS		 (STEPPER1_STEPS/STEPPER1_NCMDS_FS) // RL command steps
-#define STEPPER1_LDIR        0 // pan left stepper direction
-#define STEPPER1_RDIR        1 // pan right stepper direction
+#define STEPPER1_LDIR        1 // pan left stepper direction
+#define STEPPER1_RDIR        0 // pan right stepper direction
 
 enum headCmds {
 	Idle,
@@ -105,9 +105,11 @@ enum headCmds {
 };
 
 headCmds headCmd = Idle;
+headCmds headCmdLast = Idle;
 
 bool tiltStallDet = false;
 bool panStallDet  = false;
+int headCmdStallCnt = 0;
 
 // States for head centering
 enum centerStates {
@@ -210,30 +212,37 @@ void setupEyes(){
 // R L Pan head Right and left 1 movement
 // U D Tilt head Up and Down 1 movement
 void	commandsTask(uint32_t now_ms) {
-	if(headCmd != Idle) return;
+	if(headCmd != Idle) {
+		return;
+	}
 
 	if(!Serial.available()) return;
 	// read serial port character
 	char c = Serial.read();
 	if (c=='C') {
-		Serial.println("Center head position");
+		// Serial.println("Center head position");
 		headCmd = Center;
+		headCmdLast = headCmd;
 	}
 	else if (c=='R') {
-		Serial.println("Pan head RIGHT");
+		// Serial.println("Pan head RIGHT");
 		headCmd = Right;
+		headCmdLast = headCmd;
 	}
 	else if (c=='L') {
-		Serial.println("Pan head LEFT");
+		// Serial.println("Pan head LEFT");
 		headCmd = Left;
+		headCmdLast = headCmd;
 	}
 	else if (c=='U') {
-		Serial.println("Tilt head UP");
+		// Serial.println("Tilt head UP");
 		headCmd = Up;
+		headCmdLast = headCmd;
 	}
 	else if (c=='D') {
-		Serial.println("Tilt head DOWN");
+		// Serial.println("Tilt head DOWN");
 		headCmd = Down;
+		headCmdLast = headCmd;
 	}
 }
 
@@ -250,6 +259,18 @@ void diagTask(uint32_t now_ms) {
 	diag0 += ((!lastDiag0Pin)&&currentDiag0Pin)?1:0;
 	diag1 += ((!lastDiag1Pin)&&currentDiag1Pin)?1:0;
 	
+	if (headCmd != headCmdLast) {
+		headCmdStallCnt = 0;
+	}
+	else if (currentDiag0Pin) {
+		if (headCmdLast==Up)   headCmd = Idle;
+		if (headCmdLast==Down) headCmd = Idle;
+	}
+	else if (currentDiag1Pin) {
+		if (headCmdLast==Right) headCmd = Idle;
+		if (headCmdLast==Left)  headCmd = Idle;
+	}
+
 	lastDiag0Pin = currentDiag0Pin;
 	lastDiag1Pin = currentDiag1Pin;
 
@@ -466,7 +487,7 @@ static uint32_t last_ms = 0;
 void setup() {
   Serial.begin(USB_SERIAL_BAUD);         // Init serial port and set baudrate
   while(!Serial);               // Wait for serial port to connect
-  Serial.println("\nStart...");
+  Serial.print("\nStart...");
 
 	setupDrivers();
 
