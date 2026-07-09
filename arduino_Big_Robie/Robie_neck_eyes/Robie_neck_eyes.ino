@@ -32,7 +32,7 @@
 #include "MultiStepperLite.h"
 #include <Adafruit_NeoPixel.h>
 
-#define USB_SERIAL_BAUD 115200L
+#define USB_SERIAL_BAUD 9600L
 #define STEPPER_SERIAL_BAUD 115200L
 
 #define stepper0_enaPin   5
@@ -78,7 +78,7 @@ TMC2209Stepper driver1(&swSerial, R_SENSE, DRIVER1_ADDRESS);
 // stepper motion configuration - does not configure 2290 module
 // TILT Up Down
 #define STEPPER0_TIME_FS		 1000 // full scale travel time ms
-#define STEPPER0_NCMDS_FS    10 // Number of UD commands to travel full scale
+#define STEPPER0_NCMDS_FS    20 // Number of UD commands to travel full scale
 #define STEPPER0_STEPS_FS    50 //34 // full scale range steps not micro steps
 #define STEPPER0_STEPS       (STEPPER0_MICROSTEPS*STEPPER0_STEPS_FS) // micro steps
 #define STEPPER0_STEPDELAY   (1000L*STEPPER0_TIME_FS/(STEPPER0_STEPS)) // usec per microstep
@@ -87,7 +87,7 @@ TMC2209Stepper driver1(&swSerial, R_SENSE, DRIVER1_ADDRESS);
 #define STEPPER0_DDIR        0 // tilt down stepper direction
 // PAN Right Left
 #define STEPPER1_TIME_FS		 2000 // full scale travel time ms
-#define STEPPER1_NCMDS_FS    20 // Number of RL commands to travel full scale
+#define STEPPER1_NCMDS_FS    40 // Number of RL commands to travel full scale
 #define STEPPER1_STEPS_FS    124 // full scale range steps not micro steps
 #define STEPPER1_STEPS       (STEPPER1_MICROSTEPS*STEPPER1_STEPS_FS) // micro steps
 #define STEPPER1_STEPDELAY   (1000L*STEPPER1_TIME_FS/(STEPPER1_STEPS)) // usec per microstep
