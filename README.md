@@ -1,19 +1,25 @@
 # Robie-Big-Robot
 Files related to Robie, the 7-foot tall DPRG mascot.
 
-## Repo Contents
+# Repo Contents
 
-CAD models are in mechanical/cad_files. At the time of repo creation they contain 
+CAD models are in mechanical/cad_files. At the time of repo creation they contained 
 the design files delivered by Ron Grant to Paul Bouchier on 26 Feb 2025.
 
 Arduino files are as delivered by Doug Paradis to Paul Bouchier on March 2 2025. 
-There are two Arduino source code directories: Big_robot_pgm1 and Robie_neck_eyes.
-
 Mike Williamson added the Robie_neck_eyes code for the head UNO 7/7/2026.
 
 Raspberry Pi4 files TBD
+=======
 
-## Motors
+
+There are two Arduino source code directories: Big_robot_pgm1 and Robie_neck_eyes.
+
+1. Big_robot_pgm1 contains arduino code for the body and arm motors, which are controlled by
+the arduino mega in the torso.
+2. Robie_neck_eyes contains arduino code for the head motors and eye LEDs.
+
+# Motors
 
 ### New Head Pan Motor
 
@@ -35,29 +41,23 @@ The head movement limit is now detected by current sensing stall technology in t
 There are 10 command steps for full range using 'U' and 'D' char commands.
 There is also a new head center 'C' command.
 
-### Old Head Pan Motor
+# System Architecture
 
-The head pan motor is a step motor, with limit sensing provided by a slotted disk and opto
-sensor in the torso. At startup, the head needs to not be at a limit. Each step motor step
-lasts 15ms. If a limit is hit, the motor changes direction and steps the remainder of the step
-count in the opposite direction. When asked to pan, the motor takes 20 steps for each
-command (5 iterations of the 4-step phase sequence).
-There are ***  *** moves from limit to limit.
-Current position could be found by tracking move commands, within the accuracy bounds
-set by the auto-reverse-on-limit behavior.
+Robie is controlled by a Raspberry Pi 4 which sends motion commands to two arduinos:
 
-### Old Head tilt motor
+1. Body Arduino: controls motors in arms
+2. Head Arduino: controls head
 
-The head tilt motor is a DC motor, with HW limit switches that interrupt
-motor power when a limit is hit. The limit state is not available to FW.
-When commanded to move, the motor is run for 40ms with a PWM speed of 125.
-There are *** TBD ?? *** moves from limit to limit.  Current position
-could be found by tracking move commands, within the accuracy bounds
-set by DC motor run distance per request.
+The Raspberry Pi has a USB camera feed from the eye area, and uses it to recognize faces
+and move the head to command the Head Arduino to move the head to track the biggest
+(presumably nearest) face in the frame.
 
-### Shoulder rotate and lift motors
+The raspberry pi built-in wifi interface is used to connect to wifi networks (e.g. DMS-member).
+The raspberry pi has an add-in USB wifi dongle that offers an AP
 
-The shoulder rotate and lift motors are DC motors, with HW limit switches
+## Shoulder rotate and lift motors
+
+The right shoulder rotate and lift motors are DC motors, with HW limit switches
 that interrupt motor power when a limit is hit. The limit state is not
 available to FW, but the current position is sensed by a potentiometer
 and is available to FW.  The rotate motor rotates the right arm about
@@ -72,19 +72,19 @@ the potentiometer achieves a requested feedback value. Note that the
 weight of the arm means the arm travels downward further than upward
 for a single move request.
 
-### Left wave motor
+## Left wave motor
 
 The left wave motor twists the hand on the forearm. It is a regular servo
 with 360 degrees (approx) range of motion, and it moves to the position
 requested by the applied PWM.
 
-### Right wave motor
+## Right wave motor
 
 The right wave motor twists the hand on the forearm. It is a continuous-rotation servo
 and is stationary for mid-range applied PWM, and rotates continuously at different speeds
 based on how far the applied PWM is from mid-range.
 
-## Arduino API
+# Arduino API
 
 The commands available from the arduino are listed here. They are received on the serial
 ports, and can come from a human on a comms terminal or a program driving serial commands.
@@ -131,8 +131,54 @@ The UNU now has a DIY shield for the TMC2209 stepper motor modules
 and eyes and 12V connections.
 ![Robie head and eyes UNO with shield](electrical/robie_head_UNO.jpg)
 ![Robie head and eyes schematic](electrical/robie_head_neck_UNO_schematics.jpg)
+=======
+# Raspberry Pi SW install instructions
 
+## Install Raspberry Pi OS
 
+- Use rpi-imager to create a bootable SD card with Raspberry Pi OS (Bookworm). Bookworm
+is important because, as of July 2026, the mediapipe face recognizer software doesn't
+run on the Trixie release. Set the environment to connecto to your local wifi, and create
+user account "robie" with a suitable password
+- Connect a physical keyboard/mouse/monitor and boot the RPi
+- Start the ssh service (it is pre-installed with Raspberry Pi OS):
+```bash
+sudo systemctl enable ssh
+sudo systemctl start ssh
+```
+- Log into the RPi from a laptop to verify everything is working
+
+## Add USB wifi dongle as access point
+
+Note: you need to be very selective - only a few wifi dongles support modern Linux and Raspberry Pi OS
+
+```bash
+sudo nmcli connection add type wifi con-name "USB_Hotspot" ifname wlan1 ssid "robiewifi" mode ap ipv4.method shared
+sudo nmcli connection modify "USB_Hotspot" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "YourSecurePassword"
+sudo nmcli connection up "USB_Hotspot"
+```
+
+## Install mediapipe and opencv
+You need to set up a virtual environment to install these python packages without compromising
+the python system.
+
+```bash
+# 1. Install core system prerequisites
+sudo apt update && sudo apt install -y python3-venv python3-pip
+
+# 2. Create and activate a clean environment
+cd src
+python -m venv venv
+source venv/bin/activate
+
+# 3. Upgrade your package installers inside the environment
+pip install --upgrade pip setuptools wheel
+
+# 4. Attempt the installation
+pip install pyserial
+pip install "opencv-contrib-python<5.0"
+pip install mediapipe
+```
 
 ## Robie's Want List
 
