@@ -65,28 +65,28 @@ SoftwareSerial swSerial(SW_RX, SW_TX); // For stepper config
 
 // TILT driver0 and stepper0 controls the head tilt
 TMC2209Stepper driver0(&swSerial, R_SENSE, DRIVER0_ADDRESS);  
-#define STEPPER0_STALLVALUE  0 // [0..255]
-#define STEPPER0_I 			     800 // ma
-#define STEPPER0_MICROSTEPS  4 // 1/N micro stepping 2,4,8,16,32
+#define STEPPER0_STALLVALUE  15 // [0..255]
+#define STEPPER0_I 			     1800 // ma
+#define STEPPER0_MICROSTEPS  16 // 1/N micro stepping 2,4,8,16,32
 
 // PAN driver1 and stepper1 controls the head pan
 TMC2209Stepper driver1(&swSerial, R_SENSE, DRIVER1_ADDRESS);  
 #define STEPPER1_STALLVALUE  0 // [0..255]
 #define STEPPER1_I 			     800 // ma
-#define STEPPER1_MICROSTEPS  16 // 1/N micro stepping 2,4,8,16,32
+#define STEPPER1_MICROSTEPS  2 // 1/N micro stepping 2,4,8,16,32
 
 // stepper motion configuration - does not configure 2290 module
 // TILT Up Down
 #define STEPPER0_TIME_FS		 1000 // full scale travel time ms
 #define STEPPER0_NCMDS_FS    10 // Number of UD commands to travel full scale
-#define STEPPER0_STEPS_FS    34 // full scale range steps not micro steps
+#define STEPPER0_STEPS_FS    50 //34 // full scale range steps not micro steps
 #define STEPPER0_STEPS       (STEPPER0_MICROSTEPS*STEPPER0_STEPS_FS) // micro steps
 #define STEPPER0_STEPDELAY   (1000L*STEPPER0_TIME_FS/(STEPPER0_STEPS)) // usec per microstep
 #define STEPPER0_UDSTEPS		 (STEPPER0_STEPS/STEPPER0_NCMDS_FS) // UD commaand steps
-#define STEPPER0_UDIR        0 // tilt up stepper direction
-#define STEPPER0_DDIR        1 // tilt down stepper direction
+#define STEPPER0_UDIR        1 // tilt up stepper direction
+#define STEPPER0_DDIR        0 // tilt down stepper direction
 // PAN Right Left
-#define STEPPER1_TIME_FS		 3000 // full scale travel time ms
+#define STEPPER1_TIME_FS		 2000 // full scale travel time ms
 #define STEPPER1_NCMDS_FS    20 // Number of RL commands to travel full scale
 #define STEPPER1_STEPS_FS    124 // full scale range steps not micro steps
 #define STEPPER1_STEPS       (STEPPER1_MICROSTEPS*STEPPER1_STEPS_FS) // micro steps

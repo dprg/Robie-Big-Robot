@@ -23,6 +23,8 @@ the arduino mega in the torso.
 
 ### New Head Pan Motor
 
+NEMA 11
+
 A stepper motor to pan the head is now located in the neck of Robie instead of in the torso.
 
 It uses a BigTreeTech TMC2209 stepper controller module controlled my the head UNO.
@@ -32,6 +34,8 @@ There are still 20 command steps for full range using 'L' and 'R' char commands.
 There is also a new head center 'C' command.
 
 ### New Head Tilt Motor
+
+NEMA 17
 
 A stepper motor to tilt the head is now located in the neck of Robie instead of in the torso.
 
