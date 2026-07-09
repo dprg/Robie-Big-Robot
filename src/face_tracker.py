@@ -8,8 +8,8 @@ import traceback
 
 windowsHeadArduino = "com39"
 windowsBodyArduino = "com40"
-linuxHeadArduino = "/dev/serial/by-id/Head"     # Arduino Uno in Robie head
-linuxBodyArduino = "/dev/serial/by-id/Body"     # Arduino Mega in Robie torso
+linuxHeadArduino = "/dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_953313030343518090D1-if00"     # Arduino Uno in Robie head
+linuxBodyArduino = "/dev/serial/by-id/usb-Arduino__www.arduino.cc__0042_85332313036351F0A121-if00"     # Arduino Mega in Robie torso
 
 class DummySerial:
     def __init__(self, port):
@@ -65,10 +65,10 @@ elif operating_system == "linux":
     import tty
     import termios
     try:
-        #robie_head = serial.Serial(linuxHeadArduino)
-        #robie_body = serial.Serial(linuxBodyArduino)
-        robie_head = DummySerial(linuxHeadArduino)
-        robie_body = DummySerial(linuxBodyArduino)
+        robie_head = serial.Serial(linuxHeadArduino)
+        robie_body = serial.Serial(linuxBodyArduino)
+        #robie_head = DummySerial(linuxHeadArduino)
+        #robie_body = DummySerial(linuxBodyArduino)
     except Exception as e:
         print("Unable to open Arduino serial ports")
         traceback.print_exc()
@@ -93,19 +93,21 @@ do_face_det_motions = True
 pose = 5
 
 # period between make motions when a face is centered
-motion_time_period = 7.0
+motion_time_period = 4.0
 
 scan_left = False
 scanlr_cnt = 0
 scanlr_cnt_max = 40
 scan_up = False
 scanud_cnt = 0
-scanud_cnt_max = 10
+scanud_cnt_max = 20
 
-loop_delay = 1000   # milliseconds
+loop_delay = 500   # milliseconds
 
 h_mid = 0
 w_mid = 0
+h_show = 0
+w_show = 0
 
 # seems like a delay is needed before interacting with Robie
 time.sleep(2.0)
@@ -141,6 +143,8 @@ while cap.isOpened():
     height, width, _ = frame.shape
     h_mid = height / 2
     w_mid = width / 2
+    h_disp = int(height * 2.0)
+    w_disp = int(width * 2.0)
 
     # tracking for the largest face detected
     face = {'x': 0, 'y': 0, 'a': 0}
@@ -171,27 +175,30 @@ while cap.isOpened():
             cv2.rectangle(frame, (xmin, ymin), (xmin + w, ymin + h), (0, 255, 0), 2)
 
 
-    cv2.imshow("image", frame)
+    dimensions = (w_disp, h_disp)
+    # Resize the raw image
+    scaled_image = cv2.resize(frame, dimensions, interpolation=cv2.INTER_LINEAR)
+    cv2.imshow("scaled_image", scaled_image)
 
     a = face['a']
     x = face['x']
     y = face['y']
 
     react = ""
-    if a > 1000 :
-        if x > w_mid * 1.1 :
+    if a > 600 :
+        if x > w_mid * 1.3 :
             react+="R"
-        elif x < w_mid * 0.9 :
+        elif x < w_mid * 0.7 :
             react+="L"
         else :
-            react+="C"
+            react+=""
 
-        if y > h_mid * 1.1 :
+        if y > h_mid * 1.3 :
             react+="D"
-        elif y < h_mid * 0.9 :
+        elif y < h_mid * 0.7 :
             react+="U"
         else :
-            react+="C"
+            react+=""
 
     # process face status 
     # L = move head right, R = move head left
@@ -206,8 +213,8 @@ while cap.isOpened():
             do_face_det_motions = True
             motion_time_last = time.monotonic()
         else : 
-            det_str = "CC"
-            print("CC",end="\r")
+            det_str = ""
+            #print("CC",end="\r")
             if do_face_det_motions :
                 det_str += f"WE{pose}"
                 robie_body.write("WE".encode('ascii'))
