@@ -12,12 +12,24 @@ Mike Williamson added the Robie_neck_eyes code for the head UNO 7/7/2026.
 Raspberry Pi4 files TBD
 =======
 
-
 There are two Arduino source code directories: Big_robot_pgm1 and Robie_neck_eyes.
 
 1. Big_robot_pgm1 contains arduino code for the body and arm motors, which are controlled by
 the arduino mega in the torso.
 2. Robie_neck_eyes contains arduino code for the head motors and eye LEDs.
+
+# Raspberry Pi Head Tracking
+
+1. Connect to Robie's AP: robiewifi, wifi passwd is inside the body
+2. You will get an IP at: 10.42.0.x
+3. ssh into the RPi: ssh robie@10.42.0.1 # passwd is inside the body
+4. Use aliases miniterm_head and miniterm_body to connect to the arduinos and manually issue commands. Ctrl-] to exit
+5. Connect a NoMachine client to robie desktop as above
+6. launch a terminal session on the desktop
+7. In the terminal session:
+- cd Robie-Big-Robot/src
+- source venv/bin/activate
+- python face_detector.py
 
 # Motors
 
