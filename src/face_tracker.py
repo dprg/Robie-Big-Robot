@@ -10,6 +10,17 @@ windowsHeadArduino = "com39"
 windowsBodyArduino = "com40"
 linuxHeadArduino = "/dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_953313030343518090D1-if00"     # Arduino Uno in Robie head
 linuxBodyArduino = "/dev/serial/by-id/usb-Arduino__www.arduino.cc__0042_85332313036351F0A121-if00"     # Arduino Mega in Robie torso
+serial_baudrate = 9600
+
+
+def send_to_serial(port, data):
+    # try and write the data to the serial port and break if it fails
+    # updated all of the serial.write bits in this file to use this send_to_serial instead
+    try: 
+        port.write(data)
+        port.flush()
+    except Exception as exc:
+        print(f"Serial write failed on {port.port}: {exc}")
 
 class DummySerial:
     def __init__(self, port):
@@ -18,6 +29,9 @@ class DummySerial:
 
     def write(self, data):
         print(f"DummySerial write to `{self.port}`: {data}")
+
+    def flush(self):
+        pass
 
     def reset_input_buffer(self):
         pass
@@ -53,8 +67,8 @@ if operating_system == "windows":
     print("Running on Windows")
     import msvcrt
     try:
-        robie_head = serial.Serial(windowsHeadArduino)
-        robie_body = serial.Serial(windowsBodyArduino)
+        robie_head = serial.Serial(windowsHeadArduino, baudrate=serial_baudrate, write_timeout=0.2)
+        robie_body = serial.Serial(windowsBodyArduino, baudrate=serial_baudrate, write_timeout=0.2)
     except Exception as e:
         print("Unable to open Arduino serial ports" )
         traceback.print_exc()
@@ -65,8 +79,8 @@ elif operating_system == "linux":
     import tty
     import termios
     try:
-        robie_head = serial.Serial(linuxHeadArduino)
-        robie_body = serial.Serial(linuxBodyArduino)
+        robie_head = serial.Serial(linuxHeadArduino, baudrate=serial_baudrate, write_timeout=0.2)
+        robie_body = serial.Serial(linuxBodyArduino, baudrate=serial_baudrate, write_timeout=0.2)
         #robie_head = DummySerial(linuxHeadArduino)
         #robie_body = DummySerial(linuxBodyArduino)
     except Exception as e:
@@ -115,7 +129,7 @@ time.sleep(2.0)
 # position face toward center using C command
 robie_head.reset_input_buffer()
 print("C")
-robie_head.write("C".encode('ascii'))
+send_to_serial(robie_head, "C".encode('ascii'))
 time.sleep(5.0)  # wait for Robie to center the face
 
 print("Starting face detection. Press 'q' in the window to quit...")
@@ -209,7 +223,7 @@ while cap.isOpened():
     if react!="" :
         if react!="XX" :
             print(react)
-            robie_head.write(react.encode('ascii')) 
+            send_to_serial(robie_head, react.encode('ascii'))
             do_face_det_motions = True
             motion_time_last = time.monotonic()
         else : 
@@ -217,8 +231,8 @@ while cap.isOpened():
             print("XX",end="\r")
             if do_face_det_motions :
                 det_str += f"WE{pose}"
-                robie_body.write("WE".encode('ascii'))
-                robie_body.write(str(pose).encode('ascii'))
+                send_to_serial(robie_body, "WE".encode('ascii'))
+                send_to_serial(robie_body, str(pose).encode('ascii'))
                 pose = pose +1
                 if pose == 9 : pose=5 #poses 5,6,7,8
             print(det_str)
@@ -257,7 +271,7 @@ while cap.isOpened():
                 scanud_cnt = 0
 
         print(scan_str)
-        robie_head.write(scan_str.encode('ascii'))
+        send_to_serial(robie_head, scan_str.encode('ascii'))
 
     # if (operating_system=="windows"):
     #     c = getch()

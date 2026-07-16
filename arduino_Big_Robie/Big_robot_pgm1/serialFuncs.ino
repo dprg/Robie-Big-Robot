@@ -26,6 +26,7 @@ int readCmdLine()
 	
 	Serial.readBytes(inputString, recLen); // clear out the excess bytes in the buffer
 	inputString[recLen] = '\0';			  // ensure null termination of string
-	Serial.println(inputString);
+	// Removed the Serial.print of the received command to avoid congesting the output
+	// 	Serial.println(inputString);
 	return recLen;
 }
