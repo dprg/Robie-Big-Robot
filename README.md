@@ -183,7 +183,7 @@ the python system.
 sudo apt update && sudo apt install -y python3-venv python3-pip
 
 # 2. Create and activate a clean environment
-cd src
+cd Robie-Big-Robot/src
 python -m venv venv
 source venv/bin/activate
 
@@ -193,7 +193,7 @@ pip install --upgrade pip setuptools wheel
 # 4. Attempt the installation
 pip install pyserial
 pip install "opencv-contrib-python<5.0"
-pip install mediapipe
+pip install mediapipe=0.10.14
 ```
 
 ## Robie's Want List
@@ -201,11 +201,6 @@ pip install mediapipe
 Things Robie could really use:
 
 ### Mechanical upgrades & fixes desired
-
-- Mechanical: Head pan seems to get bound up - doesn't run freely from
-limit to limit. Mechanical connection to all-thread is not stable. Encoder
-disk doesn't secure properly.
-- Mount for step motor prevents electronics door from closing.
 
 ### Electrical upgrades & fixes desired
 
@@ -226,8 +221,6 @@ It would be desirable for it to use a different serial port, and be a
 whole different parser that uses json to pass commands & status, so
 as to retain the debug output and human-interactive aspects of the
 current parser on the arduino serial port.
-- Replace the haar-cascade face recognizer with an AI face recognizer, which
-would be much more reliable at detecting faces.
 
 ## Media
 
