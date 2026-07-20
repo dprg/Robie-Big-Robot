@@ -61,7 +61,7 @@ void parse(void)
 			break;
 		case '5': // Start moving to pose 1 (Non-Blocking)
 			// Check handled in loop() before calling parse()
-			startMoveToPose(104, 872, DEAD_BAND, ptrRightShoulderLiftMtr, ptrRightShoulderRotMtr);
+			startMoveToPose(104, 800, DEAD_BAND, ptrRightShoulderLiftMtr, ptrRightShoulderRotMtr);
 			break;
 		case '6': // Start moving to pose 2 (Non-Blocking)
 			// Check handled in loop() before calling parse()
