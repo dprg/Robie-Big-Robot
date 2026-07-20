@@ -25,7 +25,7 @@ const int POT_ROT = A3;  // Pot 2
 // Serial setup stuff
 const int bufLen = 36;    // length of inputString buffer
 char inputString[bufLen]; // a string (buffer) to hold incoming data
-int baudRate = 9600;      // baud rate
+unsigned long baudRate = 115200;      // baud rate
 
 // servo objects
 Servo waveServo; // create servo object to control left wrist servo

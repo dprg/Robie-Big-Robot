@@ -10,7 +10,7 @@ windowsHeadArduino = "com39"
 windowsBodyArduino = "com40"
 linuxHeadArduino = "/dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_953313030343518090D1-if00"     # Arduino Uno in Robie head
 linuxBodyArduino = "/dev/serial/by-id/usb-Arduino__www.arduino.cc__0042_85332313036351F0A121-if00"     # Arduino Mega in Robie torso
-serial_baudrate = 9600
+serial_baudrate = 115200
 
 
 def send_to_serial(port, data):

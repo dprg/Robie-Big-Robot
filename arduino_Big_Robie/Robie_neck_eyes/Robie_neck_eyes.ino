@@ -32,7 +32,7 @@
 #include "MultiStepperLite.h"
 #include <Adafruit_NeoPixel.h>
 
-#define USB_SERIAL_BAUD 9600L
+#define USB_SERIAL_BAUD 115200L
 #define STEPPER_SERIAL_BAUD 115200L
 
 #define stepper0_enaPin   5
@@ -219,6 +219,8 @@ void	commandsTask(uint32_t now_ms) {
 	if(!Serial.available()) return;
 	// read serial port character
 	char c = Serial.read();
+  if ((c >= 97) && (c <= 122))  // char is lower case
+    c -= 32;                    // change to upper case
 	if (c=='C') {
 		// Serial.println("Center head position");
 		headCmd = Center;
