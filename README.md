@@ -69,7 +69,8 @@ and move the head to command the Head Arduino to move the head to track the bigg
 (presumably nearest) face in the frame.
 
 The raspberry pi built-in wifi interface is used to connect to wifi networks (e.g. DMS-member).
-The raspberry pi has an add-in USB wifi dongle that offers an AP
+The raspberry pi has an add-in USB wifi dongle that offers an AP. Login details for the
+AP and the Raspberry Pi are on the Robie's back door.
 
 ## Shoulder rotate and lift motors
 
@@ -134,7 +135,6 @@ A new C (Center) command centers the head to look slightly down and straight ahe
 
 ## Electronics, power distribution and wiring
 
-
 ### Raspberry Pi4
 There is a Pi4 in the torso that processes the images from the head camera and send commands to the Torso MEGA and Head UNO over USB serial cables. 
 
@@ -143,11 +143,12 @@ The MEGA controls the arms and wrist movements.
 The head movement are now controlled by the UNO in its head.
 
 ### Head Arduino UNO controller
+
 The UNU now has a DIY shield for the TMC2209 stepper motor modules 
 and eyes and 12V connections.
 ![Robie head and eyes UNO with shield](electrical/robie_head_UNO.jpg)
 ![Robie head and eyes schematic](electrical/robie_head_neck_UNO_schematics.jpg)
-=======
+
 # Raspberry Pi SW install instructions
 
 ## Install Raspberry Pi OS
@@ -196,13 +197,30 @@ pip install "opencv-contrib-python<5.0"
 pip install mediapipe=0.10.14
 ```
 
-## Robie's Want List
+# Arduino Install Instructions
+
+Arduino 1.8 is installed on the Raspberry Pi, so you can edit arduino code directly on the
+RPi desktop and program the arduino from the RPi without disconnecting anytthing.
+
+When installing this repo to build arduino code on a new machine you'll need to install three
+libraries for the head project:
+
+- TMCStepper
+- MultiStepperLite
+- Adafruit_NeoPixel
+
+# Robie's Want List
 
 Things Robie could really use:
 
-### Mechanical upgrades & fixes desired
+## Mechanical upgrades & fixes desired
 
-### Electrical upgrades & fixes desired
+- The green visor makes webcam vision difficult. It darkens the scene, and cameras that don't
+have automatic white balance will fail because the whole scene looks green, which upsets the
+face detection. The desire is to have a wider angle camera with an untinted view of the scene.
+How to do this?
+
+## Electrical upgrades & fixes desired
 
 - The connectors for the right shoulder pots should be on keyed wiremount
 connectors that don't fall apart all the time
