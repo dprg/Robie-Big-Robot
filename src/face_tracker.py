@@ -111,10 +111,10 @@ motion_time_period = 4.0
 
 scan_left = False
 scanlr_cnt = 0
-scanlr_cnt_max = 40
+scanlr_cnt_max = 20
 scan_up = False
 scanud_cnt = 0
-scanud_cnt_max = 20
+scanud_cnt_max = 10
 
 loop_delay = 500   # milliseconds
 
