@@ -78,7 +78,7 @@ TMC2209Stepper driver1(&swSerial, R_SENSE, DRIVER1_ADDRESS);
 
 // stepper motion configuration - does not configure 2290 module
 // TILT Up Down
-#define STEPPER0_TIME_FS	 1.0 // full scale travel time (sec)
+#define STEPPER0_TIME_FS	 0.5 // full scale travel time (sec)
 #define STEPPER0_NCMDS_FS    10 // Number of UD commands to travel full scale
 #define STEPPER0_STEPS_FS    50 //34 // full scale range steps not micro steps
 #define STEPPER0_STEPS       (STEPPER0_MICROSTEPS*STEPPER0_STEPS_FS) // micro steps
@@ -93,7 +93,7 @@ TMC2209Stepper driver1(&swSerial, R_SENSE, DRIVER1_ADDRESS);
 #define STEPPER1_STEPS_FS    124 // full scale range steps not micro steps
 #define STEPPER1_STEPS       (STEPPER1_MICROSTEPS*STEPPER1_STEPS_FS) // micro steps
 #define STEPPER1_MAXSPEED    STEPPER1_STEPS/STEPPER1_TIME_FS // steps per sec
-#define STEPPER1_ACCELERATION STEPPER1_MAXSPEED*2.0 // accelerate in 1/2 sec (steps/sec^2)
+#define STEPPER1_ACCELERATION STEPPER1_MAXSPEED*1.0 // accelerate in 1/2 sec (steps/sec^2)
 #define STEPPER1_LRSTEPS		 (STEPPER1_STEPS/STEPPER1_NCMDS_FS) // RL command steps
 #define STEPPER1_LDIR        1 // pan left stepper direction
 #define STEPPER1_RDIR        0 // pan right stepper direction
@@ -196,13 +196,8 @@ void setupSteppers() {
 	digitalWrite(stepper1_enaPin, LOW);
 	digitalWrite(stepper1_dirPin, LOW);
 
-	//initialize each of 2 motors with their index and their step pin
-	stepper0.setEnablePin(stepper0_enaPin);
-	stepper0.enableOutputs();
 	stepper0.setMaxSpeed(STEPPER0_MAXSPEED);
 	stepper0.setAcceleration(STEPPER0_ACCELERATION);
-	stepper1.setEnablePin(stepper1_enaPin);
-	stepper1.enableOutputs();
 	stepper1.setMaxSpeed(STEPPER1_MAXSPEED);
 	stepper1.setAcceleration(STEPPER1_ACCELERATION);
 }
