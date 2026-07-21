@@ -78,12 +78,13 @@ TMC2209Stepper driver1(&swSerial, R_SENSE, DRIVER1_ADDRESS);
 
 // stepper motion configuration - does not configure 2290 module
 // TILT Up Down
-#define STEPPER0_TIME_FS	 0.5 // full scale travel time (sec)
+#define STEPPER0_TIME_FS	 1.0 // full scale travel time (sec)
 #define STEPPER0_NCMDS_FS    10 // Number of UD commands to travel full scale
 #define STEPPER0_STEPS_FS    50 //34 // full scale range steps not micro steps
 #define STEPPER0_STEPS       (STEPPER0_MICROSTEPS*STEPPER0_STEPS_FS) // micro steps
 #define STEPPER0_MAXSPEED    STEPPER0_STEPS/STEPPER0_TIME_FS // steps per sec
-#define STEPPER0_ACCELERATION STEPPER0_MAXSPEED*2.0 // accelerate in 1/2 sec (steps/sec^2)
+#define STEPPER0_TIME2MAX    1.0 // time to accelerate to max speed (sec)
+#define STEPPER0_ACCELERATION STEPPER0_MAXSPEED/STEPPER0_TIME2MAX // acceleration (steps/sec^2)
 #define STEPPER0_UDSTEPS	 (STEPPER0_STEPS/STEPPER0_NCMDS_FS) // UD commaand steps
 #define STEPPER0_UDIR        1 // tilt up stepper direction
 #define STEPPER0_DDIR        0 // tilt down stepper direction
@@ -93,7 +94,8 @@ TMC2209Stepper driver1(&swSerial, R_SENSE, DRIVER1_ADDRESS);
 #define STEPPER1_STEPS_FS    124 // full scale range steps not micro steps
 #define STEPPER1_STEPS       (STEPPER1_MICROSTEPS*STEPPER1_STEPS_FS) // micro steps
 #define STEPPER1_MAXSPEED    STEPPER1_STEPS/STEPPER1_TIME_FS // steps per sec
-#define STEPPER1_ACCELERATION STEPPER1_MAXSPEED*1.0 // accelerate in 1/2 sec (steps/sec^2)
+#define STEPPER1_TIME2MAX    1.0 // time to accelerate to max speed (sec)
+#define STEPPER1_ACCELERATION STEPPER1_MAXSPEED/STEPPER1_TIME2MAX // acceleration (steps/sec^2)
 #define STEPPER1_LRSTEPS		 (STEPPER1_STEPS/STEPPER1_NCMDS_FS) // RL command steps
 #define STEPPER1_LDIR        1 // pan left stepper direction
 #define STEPPER1_RDIR        0 // pan right stepper direction
@@ -360,8 +362,7 @@ void steppersTask(uint32_t now_us){
 		else if(centerState==TiltLimitA) {
 			// Move head Up 
 			if(stepper0_finished) {
-				digitalWrite(stepper0_dirPin, STEPPER0_UDIR); // UP direction
-				// steppers.start_finite(0, STEPPER0_STEPDELAY, int(STEPPER0_UDSTEPS*STEPPER0_NCMDS_FS));
+				stepper0.move(STEPPER0_UDSTEPS*STEPPER0_NCMDS_FS);
 				centerState = TiltLimitB;
 			}
 		}
@@ -376,9 +377,7 @@ void steppersTask(uint32_t now_us){
 		else if(centerState==TiltCenterA) {
 			// Move Down to center position
 			if(stepper0_finished) {
-				digitalWrite(stepper0_dirPin, STEPPER0_DDIR); // DOWN direction
-				// steppers.start_finite(0, STEPPER0_STEPDELAY, 
-				// 				int(STEPPER0_UDSTEPS*STEPPER0_NCMDS_FS*0.75));
+				stepper0.move(-STEPPER0_UDSTEPS*STEPPER0_NCMDS_FS*0.75);
 				centerState = TiltCenterB;
 			}
 		}
@@ -390,8 +389,7 @@ void steppersTask(uint32_t now_us){
 		else if(centerState==PanLimitA) {
 			// Move head Left 
 			if(stepper1_finished) {
-				digitalWrite(stepper1_dirPin, STEPPER1_LDIR); // LEFT direction
-				//steppers.start_finite(1, STEPPER1_STEPDELAY, int(STEPPER1_LRSTEPS*STEPPER1_NCMDS_FS));
+				stepper1.move(STEPPER1_LRSTEPS*STEPPER1_NCMDS_FS);
 				centerState = PanLimitB;
 			}
 		}
@@ -407,8 +405,7 @@ void steppersTask(uint32_t now_us){
 		else if(centerState==PanCenterA) {
 			// Move Right to center position
 			if(stepper1_finished) {
-				digitalWrite(stepper1_dirPin, STEPPER1_RDIR); // RIGHT direction
-				//steppers.start_finite(1, STEPPER1_STEPDELAY, int(STEPPER1_LRSTEPS*STEPPER1_NCMDS_FS*0.5));
+				stepper1.move(-STEPPER1_LRSTEPS*STEPPER1_NCMDS_FS*0.5);
 				centerState = PanCenterB;
 			}
 		}
