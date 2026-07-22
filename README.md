@@ -51,7 +51,7 @@ There is also a new head center 'C' command.
 The head tilt motor is a NEMA 17 motor from stepperonline.com, P/N 17HS19-2004S1.
 
 #### Specs
-![Tilt motor](Images/NEMA17-Motor-spec.webp)
+![Tilt motor](images/NEMA17-Motor-spec.webp)
 
 A stepper motor to tilt the head is now located in the neck of Robie instead of in the torso.
 
