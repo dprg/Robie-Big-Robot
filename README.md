@@ -22,14 +22,14 @@ the arduino mega in the torso.
 
 1. Connect to Robie's AP: robiewifi, wifi passwd is inside the body
 2. You will get an IP at: 10.42.0.x
-3. ssh into the RPi: ssh robie@10.42.0.1 # passwd is inside the body
+3. ssh into the RPi: `ssh robie@10.42.0.1` # passwd is inside the body
 4. Use aliases miniterm_head and miniterm_body to connect to the arduinos and manually issue commands. Ctrl-] to exit
 5. Connect a NoMachine client to robie desktop as above
 6. launch a terminal session on the desktop
 7. In the terminal session:
-- cd Robie-Big-Robot/src
-- source venv/bin/activate
-- python face_detector.py
+   - `cd Robie-Big-Robot/src`
+   - `source venv/bin/activate`
+   - `python face_detector.py`
 
 # Motors
 
@@ -41,7 +41,7 @@ It uses a BigTreeTech TMC2209 stepper controller module controlled my the head U
 The head movement limit is now detected by current sensing stall technology in the 2209.
 
 The head motor is a NEMA 11 motor from stepperonline.com, P/N 11HS20-0674S.
-Specs [here](https://www.omc-stepperonline.com/nema-11-bipolar-1-8deg-12ncm-17oz-in-0-67a-6-2v-28x28x51mm-4-wires-11hs20-0674s)
+[Specs here](https://www.omc-stepperonline.com/nema-11-bipolar-1-8deg-12ncm-17oz-in-0-67a-6-2v-28x28x51mm-4-wires-11hs20-0674s)
 
 There are still 20 command steps for full range using 'L' and 'R' char commands.
 There is also a new head center 'C' command.
@@ -51,13 +51,14 @@ There is also a new head center 'C' command.
 The head tilt motor is a NEMA 17 motor from stepperonline.com, P/N 17HS19-2004S1.
 
 #### Specs
-![Tilt motor](images/NEMA17-Motor-spec.webp)
+[Full size image](images/NEMA17-Motor-spec.webp)<br>
+<img src="images/NEMA17-Motor-spec.webp" alt="Tilt motor" width="330" height="500">
 
 A stepper motor to tilt the head is now located in the neck of Robie instead of in the torso.
 
 It uses a BigTreeTech TMC2209 stepper controller module controlled my the head UNO.
 The head movement limit is now detected by current sensing stall technology in the 2209.
-Wiki [here](https://global.bttwiki.com/TMC2209.html)
+[Wiki here](https://global.bttwiki.com/TMC2209.html)
 
 There are 10 command steps for full range using 'U' and 'D' char commands.
 There is also a new head center 'C' command.
@@ -119,24 +120,22 @@ These commands are the API as of early 2025. Commands are single letters and
 are executed immediately upon receipt (no CR-LF required). Multiple commands
 are buffered and executed in order.
 
-- L - Pan head left. Responds with L
-- R - Pan head right. Responds with R
-- U - Tilt head up. Responds with U
-- D - Tilt head down. Responds with D.
-- W - Rotates left wrist twice in each direction. Responds with W.
-- E - Rotates right wrist twice in each direction. Responds with E.
-- 1 - Lift the arm sideways (up/away from body). Responds with:<br>
-lift_feedback, rotate_feedback<br>
-1<br>
-- 2 - Rotate the arm CCW on the shoulder. If the arm is hanging down this results
-in forward and up)motion. Similar response as 1 except echoes 2
-- 3 - The opposite of 1. Similar response as 1 except echoes 3
-- 4 - The opposite of 2. Similar response as 1 except echoes 4
-- 5, 6, 6, 7 - Move to fixed poses. Responds with a series of (lift_feedback, rotate_feedback)
-pairs until movement is complete.
+  - L - Pan head left. Responds with L  
+  - R - Pan head right. Responds with R
+  - U - Tilt head up. Responds with U
+  - D - Tilt head down. Responds with D.
+  - W - Rotates left wrist twice in each direction. Responds with W.
+  - E - Rotates right wrist twice in each direction. Responds with E.
+  - 1 - Lift the arm sideways (up/away from body). Responds with: (lift_feedback, rotate_feedback)
+  - 2 - Rotate the arm CCW on the shoulder. If the arm is hanging down this results
+  in forward and up motion. Similar response as 1 except echoes 2
+  - 3 - The opposite of 1. Similar response as 1 except echoes 3
+  - 4 - The opposite of 2. Similar response as 1 except echoes 4
+  - 5, 6, 6, 7 - Move to fixed poses. Responds with a series of (lift_feedback, rotate_feedback)
+  pairs until movement is complete.
 
-The LRUD commands are now processed in the UNO in its head.
-A new C (Center) command centers the head to look slightly down and straight ahead.
+**The LRUD commands are now processed in the UNO in its head.
+A new C (Center) command centers the head to look slightly down and straight ahead.**
 
 ## Electronics, power distribution and wiring
 
@@ -216,7 +215,7 @@ libraries for the head project:
 
 # Robie's Want List
 
-Things Robie could really use:
+***Things Robie could really use:***
 
 ## Mechanical upgrades & fixes desired
 
@@ -249,34 +248,35 @@ current parser on the arduino serial port.
 
 Robie Resuscitation 2025
 ![Robie Resuscitated](images/RobieResuscitated.png)
-<br>
+
 Robie at iMake Ft Worth (2017)
 ![Robie at iMake Ft Worth (2017)](images/RobieAtFtWorthIMake.png)
-<br>
+
 Robie with Doug
 ![Robie with Doug](images/Doug_w_big_robie_in_gargage2017.JPG)
-<br>
+
 ### Videos
 [Video: Resuscitated Robie moving](https://youtu.be/EISYc3Z7FQA)
-<br>
+
 [Video: Early Robie at a DPRG show](https://youtu.be/n2Y_eyLx5xM)
 
 ## Changelog
 
-Mike Williamson 3/21/2025<br>
-Added opencv code to detect faces which will control the head to point to it and maybe even wave when centered on face<br>
-
-start code: cd to opencv in terminal run py -f facedet_test.py<br>
+Mike W 3/21/2025
+- Added opencv code to detect faces which will control the head to point to it and maybe even wave when centered on face
+  - start code: cd to opencv in terminal run py -f facedet_test.py
 
 Mark R 3/26/2025
-Added support for Linux, as well as some error catching stuff
+- Added support for Linux, as well as some error catching stuff
 
-<br>
 It is based on the instructions from this page:
 https://thepythoncode.com/article/detect-faces-opencv-python 
-<br>
+
 Paul B 4/1/2025
-Removed duplicate arduino directory Big_robot_pgm2. Added image to README.md
-<br>
-Mikew 7/7/2026<br>
-Added code for the UNO in Robie's head. It now controlls the pan and tilt steppers as well as the eyes
+- Removed duplicate arduino directory Big_robot_pgm2. Added image to README.md
+
+Mike W 7/7/2026
+- Added code for the UNO in Robie's head. It now controlls the pan and tilt steppers as well as the eyes
+
+Mark R 7/21/26
+- Update the file structure to hopefully make it a little clearer
