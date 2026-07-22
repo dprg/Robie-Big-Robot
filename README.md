@@ -3,7 +3,7 @@ Files related to Robie, the 7-foot tall DPRG mascot.
 
 # Repo Contents
 
-CAD models are in mechanical/cad_files. At the time of repo creation they contained 
+CAD models are in [mechanical/cad_files](mechanical/cad_files) . At the time of repo creation they contained 
 the design files delivered by Ron Grant to Paul Bouchier on 26 Feb 2025.
 
 Arduino files are as delivered by Doug Paradis to Paul Bouchier on March 2 2025. 
@@ -12,18 +12,18 @@ Mike Williamson added the Robie_neck_eyes code for the head UNO 7/7/2026.
 Raspberry Pi4 files TBD
 =======
 
-There are two Arduino source code directories: Big_robot_pgm1 and Robie_neck_eyes.
+There are two Arduino source code directories:
 
-1. Big_robot_pgm1 contains arduino code for the body and arm motors, which are controlled by
+1. `Big_robot_pgm1` contains arduino code for the body and arm motors, which are controlled by
 the arduino mega in the torso.
-2. Robie_neck_eyes contains arduino code for the head motors and eye LEDs.
+2. `Robie_neck_eyes` contains arduino code for the head motors and eye LEDs.
 
 # Raspberry Pi Head Tracking
 
-1. Connect to Robie's AP: robiewifi, wifi passwd is inside the body
-2. You will get an IP at: 10.42.0.x
+1. Connect to Robie's AP: `robiewifi`, wifi passwd is inside the body
+2. You will get an IP at: `10.42.0.x`
 3. ssh into the RPi: `ssh robie@10.42.0.1` # passwd is inside the body
-4. Use aliases miniterm_head and miniterm_body to connect to the arduinos and manually issue commands. Ctrl-] to exit
+4. Use aliases `miniterm_head` and `miniterm_body` to connect to the arduinos and manually issue commands. `Ctrl-]` to exit
 5. Connect a NoMachine client to robie desktop as above
 6. launch a terminal session on the desktop
 7. In the terminal session:
@@ -36,9 +36,6 @@ the arduino mega in the torso.
 ### New Head Pan Motor
 
 A stepper motor to pan the head is now located in the neck of Robie instead of in the torso.
-
-It uses a BigTreeTech TMC2209 stepper controller module controlled my the head UNO.
-The head movement limit is now detected by current sensing stall technology in the 2209.
 
 The head motor is a NEMA 11 motor from stepperonline.com, P/N 11HS20-0674S.
 [Specs here](https://www.omc-stepperonline.com/nema-11-bipolar-1-8deg-12ncm-17oz-in-0-67a-6-2v-28x28x51mm-4-wires-11hs20-0674s)
@@ -53,8 +50,6 @@ The head tilt motor is a NEMA 17 motor from stepperonline.com, P/N 17HS19-2004S1
 #### Specs
 [Full size image](images/NEMA17-Motor-spec.webp)<br>
 <img src="images/NEMA17-Motor-spec.webp" alt="Tilt motor" width="330" height="500">
-
-A stepper motor to tilt the head is now located in the neck of Robie instead of in the torso.
 
 It uses a BigTreeTech TMC2209 stepper controller module controlled my the head UNO.
 The head movement limit is now detected by current sensing stall technology in the 2209.
@@ -150,8 +145,8 @@ The head movement are now controlled by the UNO in its head.
 
 The UNU now has a DIY shield for the TMC2209 stepper motor modules 
 and eyes and 12V connections.
-![Robie head and eyes UNO with shield](Electrical/Schematics/robie_head_UNO.jpg)
-![Robie head and eyes schematic](Electrical/Schematics/robie_head_neck_UNO_schematics.jpg)
+![Robie head and eyes UNO with shield](electrical/schematics/robie_head_UNO.jpg)
+![Robie head and eyes schematic](electrical/schematics/robie_head_neck_UNO_schematics.jpg)
 
 # Raspberry Pi SW install instructions
 
@@ -201,7 +196,7 @@ pip install "opencv-contrib-python<5.0"
 pip install mediapipe=0.10.14
 ```
 
-# Arduino Install Instructions
+# Arduino Installation Instructions
 
 Arduino 1.8 is installed on the Raspberry Pi, so you can edit arduino code directly on the
 RPi desktop and program the arduino from the RPi without disconnecting anytthing.
@@ -213,7 +208,7 @@ libraries for the head project:
 - MultiStepperLite
 - Adafruit_NeoPixel
 
-# Robie's Want List
+# Robie's Wish List
 
 ***Things Robie could really use:***
 
