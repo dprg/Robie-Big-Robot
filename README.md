@@ -51,7 +51,7 @@ There is also a new head center 'C' command.
 The head tilt motor is a NEMA 17 motor from stepperonline.com, P/N 17HS19-2004S1.
 
 #### Specs
-![Tilt motor](images/NMEA17-Motor-spec.webp)
+![Tilt motor](Images/NEMA17-Motor-spec.webp)
 
 A stepper motor to tilt the head is now located in the neck of Robie instead of in the torso.
 
@@ -151,8 +151,8 @@ The head movement are now controlled by the UNO in its head.
 
 The UNU now has a DIY shield for the TMC2209 stepper motor modules 
 and eyes and 12V connections.
-![Robie head and eyes UNO with shield](electrical/robie_head_UNO.jpg)
-![Robie head and eyes schematic](electrical/robie_head_neck_UNO_schematics.jpg)
+![Robie head and eyes UNO with shield](Electrical/Schematics/robie_head_UNO.jpg)
+![Robie head and eyes schematic](Electrical/Schematics/robie_head_neck_UNO_schematics.jpg)
 
 # Raspberry Pi SW install instructions
 
