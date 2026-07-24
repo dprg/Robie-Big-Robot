@@ -135,7 +135,9 @@ A new C (Center) command centers the head to look slightly down and straight ahe
 ## Electronics, power distribution and wiring
 
 The overall body wiring diagram is in the electrical/EasyEDA project directory.
-![robie body wiring diagram](electrical/schematics/robie_body_sch.pdf)
+![robie body wiring diagram](electrical/schematics/robie_body_sch.png)
+
+#### Generating a viewable schematic from the EasyEDA project
 
 The schematic was exported from EasyEDA to this pdf:
 [Robie body schematic](electrical/schematics/robie_body_sch.pdf)
