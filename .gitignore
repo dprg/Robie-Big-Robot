@@ -4,3 +4,8 @@ __pycache__*
 .aider*
 KiCad/head_ctrl/head_ctrl-backups
 venv
+# EasyEDA Pro project logs and local workspace indexes
+**/log/
+**/workspace/
+**/*.tmp
+**/*.bak
