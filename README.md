@@ -137,16 +137,12 @@ A new C (Center) command centers the head to look slightly down and straight ahe
 The overall body wiring diagram is in the electrical/EasyEDA project directory.
 ![robie body wiring diagram](electrical/schematics/robie_body_sch.png)
 
-#### Generating a viewable schematic from the EasyEDA project
-
-The schematic was exported from EasyEDA to this pdf:
-[Robie body schematic](electrical/schematics/robie_body_sch.pdf)
-The pdf was converted to .png using convert -density 150 robie_body_sch.pdf[0] robie_body_sch.png
-
 ### Raspberry Pi4
-There is a Pi4 in the torso that processes the images from the head camera and send commands to the Torso MEGA and Head UNO over USB serial cables. 
+
+There is a Pi4 in the torso that processes the images from the head camera and send commands to the Torso MEGA and Head UNO over USB serial cables to cause motion of head and arms. 
 
 ### Torso Arduino MEGA controller
+
 The MEGA controls the arms and wrist movements.
 The head movement are now controlled by the UNO in its head.
 
