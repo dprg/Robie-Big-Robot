@@ -134,8 +134,12 @@ A new C (Center) command centers the head to look slightly down and straight ahe
 
 ## Electronics, power distribution and wiring
 
-The overall body wiring diagram is in:
-![Roby body schematic](electrical/schematics/robie_body_sch.pdf)
+The overall body wiring diagram is in this pdf:
+[Robie body schematic](electrical/schematics/robie_body_sch.pdf)
+<object data="electrical/schematics/robie_body_sch.pdf" type="application/pdf" width="100%" height="600px">
+    <p>This browser does not support PDFs. Please download the PDF to view it: 
+    <a href="electrical/schematics/robie_body_sch.pdf">Download PDF</a>.</p>
+</object>
 
 ### Raspberry Pi4
 There is a Pi4 in the torso that processes the images from the head camera and send commands to the Torso MEGA and Head UNO over USB serial cables. 
