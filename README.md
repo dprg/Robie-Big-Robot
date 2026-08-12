@@ -177,6 +177,8 @@ Note: you need to be very selective - only a few wifi dongles support modern Lin
 sudo nmcli connection add type wifi con-name "USB_Hotspot" ifname wlan1 ssid "robiewifi" mode ap ipv4.method shared
 sudo nmcli connection modify "USB_Hotspot" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "YourSecurePassword"
 sudo nmcli connection up "USB_Hotspot"
+sudo nmcli connection modify "USB_Hotspot" connection.autoconnect yes
+sudo nmcli connection modify "USB_Hotspot" connection.permissions ""
 ```
 
 ## Install mediapipe and opencv
